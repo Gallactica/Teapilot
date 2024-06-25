@@ -9,12 +9,13 @@ public class PlayerMovementRequest extends Request {
     int time;
     boolean jumping;
     boolean sneaking;
+    boolean sprinting;
     float x;
     float y;
 
     @Override
     public @Nullable Response call() throws Exception {
-        MovementOverride.setMovement(x, y, sneaking, jumping, time);
+        MovementOverride.setMovement(x, y, sneaking, jumping, sprinting, time);
         return null;
     }
 }
