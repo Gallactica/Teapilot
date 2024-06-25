@@ -34,7 +34,7 @@ public class HandledScreenMixin {
             jsonObject.addProperty("event", SoulkeeperEvents.TOOLTIP.toString());
             jsonObject.add("item", JsonUtils.fromItemStack(itemStack));
             jsonObject.add("texts", JsonUtils.fromTextList(textList));
-            Soulkeeper.tcpServer.broadcast(jsonObject);
+            Soulkeeper.soulkeeperServer.broadcast(jsonObject);
 
 //          TooltipExchanger.textList = Collections.emptyList();
             TooltipExchanger.textList = textList;

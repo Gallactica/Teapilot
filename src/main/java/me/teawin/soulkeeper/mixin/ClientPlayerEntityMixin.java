@@ -14,6 +14,6 @@ public class ClientPlayerEntityMixin {
     public void closeHandledScreen(CallbackInfo ci) {
         if (Soulkeeper.flagsManager.isDisabled("PACKET_CONTAINER")) return;
         var event = SoulkeeperEvents.createEvent(SoulkeeperEvents.CONTAINER_CLOSE);
-        Soulkeeper.tcpServer.broadcast(event);
+        Soulkeeper.soulkeeperServer.broadcast(event);
     }
 }

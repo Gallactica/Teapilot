@@ -7,7 +7,6 @@ import com.mojang.brigadier.ParseResults;
 import me.teawin.soulkeeper.Soulkeeper;
 import me.teawin.soulkeeper.JsonUtils;
 import me.teawin.soulkeeper.SoulkeeperEvents;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
@@ -60,7 +59,7 @@ public abstract class ClientPlayProtocolMixin {
         event.add("slot", new JsonPrimitive(i));
         event.add("item", JsonUtils.fromItemStack(itemStack));
 
-        Soulkeeper.tcpServer.broadcast(event);
+        Soulkeeper.soulkeeperServer.broadcast(event);
     }
 
     @Inject(method = "onInventory", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
@@ -82,7 +81,7 @@ public abstract class ClientPlayProtocolMixin {
 //        }
         event.add("items", items);
 
-        Soulkeeper.tcpServer.broadcast(event);
+        Soulkeeper.soulkeeperServer.broadcast(event);
     }
 
     @Inject(method = "onScoreboardObjectiveUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/ScoreboardObjective;setDisplayName(Lnet/minecraft/text/Text;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
@@ -106,7 +105,7 @@ public abstract class ClientPlayProtocolMixin {
         blocks.add(block);
 
         event.add("blocks", blocks);
-        Soulkeeper.tcpServer.broadcast(event);
+        Soulkeeper.soulkeeperServer.broadcast(event);
     }
 
     @Inject(method = "onChunkDeltaUpdate", at = @At("TAIL"))
@@ -124,6 +123,6 @@ public abstract class ClientPlayProtocolMixin {
         });
 
         event.add("blocks", blocks);
-        Soulkeeper.tcpServer.broadcast(event);
+        Soulkeeper.soulkeeperServer.broadcast(event);
     }
 }

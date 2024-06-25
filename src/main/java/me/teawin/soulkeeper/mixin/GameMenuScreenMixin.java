@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static me.teawin.soulkeeper.Soulkeeper.tcpServer;
+import static me.teawin.soulkeeper.Soulkeeper.soulkeeperServer;
 
 @Mixin(GameMenuScreen.class)
 public class GameMenuScreenMixin {
@@ -35,7 +35,7 @@ public class GameMenuScreenMixin {
 
                         context.drawTexture(TEXTURE, 0, 0, 0, 32, this.getWidth(), this.getHeight());
                         context.drawText(manager.getClient().textRenderer, "Soulkeeper", 30, 7, -11534256, false);
-                        context.drawText(manager.getClient().textRenderer, "Порт " + tcpServer.port, 30, 18, -16777216, false);
+                        context.drawText(manager.getClient().textRenderer, "Порт " + soulkeeperServer.port, 30, 18, -16777216, false);
                         context.drawItemWithoutEntity(diamond, 8, 8);
                         return (double) (startTime - this.startTime) >= 5000.0 * manager.getNotificationDisplayTimeMultiplier() ? Visibility.HIDE : Visibility.SHOW;
                     }

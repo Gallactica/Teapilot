@@ -14,6 +14,6 @@ public class MinecraftClientMixin {
     @Inject(method = "joinWorld", at = @At("TAIL"))
     public void joinWorld(ClientWorld world, CallbackInfo ci) {
         var event = SoulkeeperEvents.createEvent(SoulkeeperEvents.WORLD_CHANGE);
-        Soulkeeper.tcpServer.broadcast(event);
+        Soulkeeper.soulkeeperServer.broadcast(event);
     }
 }

@@ -1,9 +1,8 @@
 package me.teawin.soulkeeper.protocol;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.teawin.soulkeeper.Soulkeeper;
-import me.teawin.soulkeeper.RemoteProcedureManager;
+import me.teawin.soulkeeper.RequestDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,17 +12,18 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class TCPServer {
+public class SoulkeeperServer {
     private final ServerSocket serverSocket;
     public final List<Socket> clients = new CopyOnWriteArrayList<>();
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Soulkeeper/Protocol");
 
-    private final RemoteProcedureManager manager;
+    private final RequestDispatcher manager;
 
     public final int port;
 
-    public TCPServer(RemoteProcedureManager manager) throws IOException {
+
+    public SoulkeeperServer(RequestDispatcher manager) throws IOException {
 
         int port = 9090;
         ServerSocket findServerSocket;
@@ -71,10 +71,12 @@ public class TCPServer {
         return !this.clients.isEmpty();
     }
 
-    private final Gson gson = new Gson();
+    public void broadcast(Response jsonObject) {
+        broadcast(GsonConfigurator.gson.toJson(jsonObject));
+    }
 
     public void broadcast(JsonObject jsonObject) {
-        broadcast(gson.toJson(jsonObject));
+        broadcast(GsonConfigurator.gson.toJson(jsonObject));
     }
 
     public void broadcast(String message) {
@@ -83,7 +85,7 @@ public class TCPServer {
 
     public void broadcast(String message, List<Socket> clients) {
         if (Soulkeeper.flagsManager.isEnabled("DEBUG_PACKET_LOGGER"))
-            TCPServer.LOGGER.info("Packet out:\n" + message);
+            SoulkeeperServer.LOGGER.info("Packet out:\n" + message);
 
         CompletableFuture.supplyAsync(() -> {
             for (Socket client : clients) {
@@ -91,7 +93,7 @@ public class TCPServer {
                     PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                     out.println(message);
                 } catch (IOException e) {
-                    TCPServer.LOGGER.error("Write failed: " + e.getMessage());
+                    SoulkeeperServer.LOGGER.error("Write failed: " + e.getMessage());
                 }
             }
             return null;

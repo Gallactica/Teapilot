@@ -39,11 +39,10 @@ public class JsonUtils {
         JsonObject screenJson = new JsonObject();
         screenJson.add("type", new JsonPrimitive("undefined"));
 
-        if (!(screen instanceof HandledScreen)) {
+        if (!(screen instanceof HandledScreen containerScreen)) {
             return screenJson;
         }
         HandledScreenAccessor containerScreenAccessor = (HandledScreenAccessor) screen;
-        HandledScreen containerScreen = (HandledScreen) screen;
 
         screenJson.add("title", JsonUtils.fromText(screen.getTitle()));
 
@@ -210,5 +209,9 @@ public class JsonUtils {
         DataResult<JsonElement> result = BlockState.CODEC.encodeStart(JsonOps.INSTANCE, properties);
         return result.getOrThrow(true, s -> {
         }).getAsJsonObject().get("Properties");
+    }
+
+    public static Text toText(JsonElement json) {
+        return Text.Serializer.fromJson(json);
     }
 }

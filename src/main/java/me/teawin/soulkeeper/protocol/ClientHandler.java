@@ -3,8 +3,9 @@ package me.teawin.soulkeeper.protocol;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import me.teawin.soulkeeper.RemoteProcedureManager;
+import me.teawin.soulkeeper.RequestDispatcher;
 import me.teawin.soulkeeper.Soulkeeper;
+import me.teawin.soulkeeper.protocol.response.ErrorResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,15 +17,15 @@ public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private final BufferedReader in;
     private final PrintWriter out;
-    private final RemoteProcedureManager manager;
-    private final TCPServer tcpServer;
+    private final RequestDispatcher manager;
+    private final SoulkeeperServer soulkeeperServer;
 
-    public ClientHandler(Socket clientSocket, RemoteProcedureManager manager, TCPServer tcpServer) throws IOException {
+    public ClientHandler(Socket clientSocket, RequestDispatcher manager, SoulkeeperServer soulkeeperServer) throws IOException {
         this.clientSocket = clientSocket;
         this.manager = manager;
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         this.out = new PrintWriter(clientSocket.getOutputStream(), true);
-        this.tcpServer = tcpServer;
+        this.soulkeeperServer = soulkeeperServer;
     }
 
     @Override
@@ -41,64 +42,70 @@ public class ClientHandler implements Runnable {
                 }
             }
             // Remove the client from the list when the connection is closed
-            tcpServer.clients.remove(clientSocket);
+            soulkeeperServer.clients.remove(clientSocket);
 
-            TCPServer.LOGGER.info("Client disconnected");
+            SoulkeeperServer.LOGGER.info("Client disconnected");
         } catch (IOException e) {
 
-            TCPServer.LOGGER.error("Read failed: " + e.getMessage());
+            SoulkeeperServer.LOGGER.error("Read failed: " + e.getMessage());
             // Remove the client from the list when an exception occurs
-            tcpServer.clients.remove(clientSocket);
+            soulkeeperServer.clients.remove(clientSocket);
 
-            TCPServer.LOGGER.info("Client disconnected");
+            SoulkeeperServer.LOGGER.info("Client disconnected");
         } finally {
             try {
                 clientSocket.close();
             } catch (IOException e) {
-                TCPServer.LOGGER.error("Failed to close client socket: " + e.getMessage());
+                SoulkeeperServer.LOGGER.error("Failed to close client socket: " + e.getMessage());
             }
         }
     }
 
-
     void readPacket(String message) {
-        if (Soulkeeper.flagsManager.isEnabled("DEBUG_PACKET_LOGGER"))
-            TCPServer.LOGGER.info("Packet in:\n" + message);
+        if (Soulkeeper.flagsManager.isEnabled("DEBUG_PACKET_LOGGER")) SoulkeeperServer.LOGGER.info("Packet in:\n" + message);
 
         JsonElement jsonElement = JsonParser.parseString(message);
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         JsonElement replyId = jsonObject.get("replyId");
 
-        manager.dispatch(jsonObject.get("method").getAsString(), jsonObject).thenApply(replyJsonObject -> {
-            if (replyId != null) {
-                if (replyJsonObject != null) {
-                    replyJsonObject.add("replyId", replyId);
-                    tcpServer.broadcast(replyJsonObject);
-                } else {
-                    var obj = new JsonObject();
-                    obj.add("replyId", replyId);
-                    tcpServer.broadcast(obj);
+        String method = jsonObject.get("method").getAsString();
+
+        if (manager.listeners.containsKey(method)) {
+            manager.dispatch((Request) GsonConfigurator.gson.fromJson(jsonElement, manager.listeners.get(method))).thenApply(replyJsonObject -> {
+                if (replyId != null) {
+                    if (replyJsonObject != null) {
+                        replyJsonObject.setReplyId(replyId);
+                        soulkeeperServer.broadcast(replyJsonObject);
+                    } else {
+                        var response = new Response();
+                        response.setReplyId(replyId);
+                        soulkeeperServer.broadcast(response);
+                    }
                 }
-            }
-            return null;
-        }).exceptionally(throwable -> {
-            StackTraceElement[] stackTraceElements = throwable.getStackTrace();
-            StringBuilder sb = new StringBuilder();
-            for (StackTraceElement element : stackTraceElements) {
-                sb.append(element.toString()).append("\n");
-            }
-            String multiLineTraceString = sb.toString();
+                return null;
+            }).exceptionally(throwable -> {
+                StackTraceElement[] stackTraceElements = throwable.getStackTrace();
+                StringBuilder sb = new StringBuilder();
+                for (StackTraceElement element : stackTraceElements) {
+                    sb.append(element.toString()).append("\n");
+                }
+                String multiLineTraceString = sb.toString();
 
+                if (replyId != null) {
+                    var errorJson = new ErrorResponse(throwable.getMessage(), multiLineTraceString);
+                    errorJson.setReplyId(replyId);
+
+                    soulkeeperServer.broadcast(errorJson);
+                }
+                SoulkeeperServer.LOGGER.error("Error evaluate: " + throwable.getMessage() + '\n' + multiLineTraceString);
+                return null;
+            });
+        } else {
             if (replyId != null) {
-                var errorJson = new JsonObject();
-                errorJson.add("replyId", replyId);
-                errorJson.addProperty("error", throwable.getMessage());
-                errorJson.addProperty("stack", multiLineTraceString);
-
-                tcpServer.broadcast(errorJson);
+                var response = new Response();
+                response.setReplyId(replyId);
+                soulkeeperServer.broadcast(response);
             }
-            TCPServer.LOGGER.error("Error evaluate: " + throwable.getMessage() + '\n' + multiLineTraceString);
-            return null;
-        });
+        }
     }
 }
