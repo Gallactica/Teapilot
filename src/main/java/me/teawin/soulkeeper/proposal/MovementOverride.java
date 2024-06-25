@@ -15,10 +15,11 @@ public class MovementOverride {
     public static Vec2f vec = new Vec2f(0, 0);
     public static boolean sneaking = false;
     public static boolean jumping = false;
+    public static boolean sprinting = false;
 
     private static ScheduledFuture<?> scheduledFuture = null;
 
-    public static void setMovement(float x, float y, boolean sneak, boolean jump, int ms) {
+    public static void setMovement(float x, float y, boolean sneak, boolean jump, boolean sprint, int ms) {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
@@ -35,6 +36,7 @@ public class MovementOverride {
 
         sneaking = sneak;
         jumping = jump;
+        sprinting = sprint;
 
         scheduledFuture = scheduler.schedule(MovementOverride::reset, ms, TimeUnit.MILLISECONDS);
     }
@@ -43,5 +45,6 @@ public class MovementOverride {
         vec = Vec2f.ZERO;
         sneaking = false;
         jumping = false;
+        sprinting = false;
     }
 }
