@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "id": "soulkeeper",
+  "id": "teapilot",
   "version": "${version}",
-  "name": "Soulkeeper",
+  "name": "Teapilot",
   "description": "fuck этот fabric",
   "authors": [
     "Teawin"
   ],
   "license": "CC0-1.0",
-  "icon": "assets/soulkeeper/icon.png",
+  "icon": "assets/teapilot/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.teawin.soulkeeper.Soulkeeper"
+      "me.teawin.teapilot.Teapilot"
     ]
   },
   "mixins": [
-    "soulkeeper.mixins.json"
+    "teapilot.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.19",
