@@ -25,6 +25,7 @@ import me.teawin.soulkeeper.protocol.request.player.inventory.hand.PlayerInvento
 import me.teawin.soulkeeper.protocol.request.player.look.PlayerLookRequest;
 import me.teawin.soulkeeper.protocol.request.player.look.PlayerLookTargetRequest;
 import me.teawin.soulkeeper.protocol.request.player.movement.PlayerJumpRequest;
+import me.teawin.soulkeeper.protocol.request.player.movement.PlayerMovementRequest;
 import me.teawin.soulkeeper.protocol.request.scoreboard.SidebarRequest;
 import me.teawin.soulkeeper.protocol.request.soulkeeper.FlagsRequest;
 import me.teawin.soulkeeper.protocol.request.soulkeeper.FlagsSetRequest;
@@ -68,6 +69,7 @@ public class RequestDispatcher {
         register("player.raycast", PlayerRaycastRequest.class);
         register("player.interact.use", PlayerUseRequest.class);
         register("player.interact.attack", PlayerAttackRequest.class);
+        register("player.movement", PlayerMovementRequest.class);
         register("player.movement.jump", PlayerJumpRequest.class);
         register("player.inventory", PlayerInventoryRequest.class);
         register("player.inventory.hand", PlayerInventoryHandRequest.class);
@@ -81,8 +83,8 @@ public class RequestDispatcher {
         register("player.look.target", PlayerLookTargetRequest.class);
         register("player.container", PlayerContainerRequest.class);
         register("player.container.info", PlayerContainerInfoRequest.class);
+        register("player.chat", PlayerChatRequest.class);
         register("world.entity.get", WorldEntityGetRequest.class);
         register("world.block.get", WorldBlockGetRequest.class);
-        register("player.chat", PlayerChatRequest.class);
     }
 }

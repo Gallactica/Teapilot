@@ -15,6 +15,7 @@
     "GameMenuScreenMixin",
     "HandledScreenMixin",
     "InGameHudMixin",
+    "KeyboardInputMixin",
     "MinecraftClientMixin",
     "ParticleHandlerMixin"
   ],
