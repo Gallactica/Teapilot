@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.teawin.soulkeeper.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "HandledScreenAccessor",
+    "MinecraftClientAccessor",
+    "ParticleAccessor",
+    "ScreenAccessor"
+  ],
+  "client": [
+    "ClientPlayerEntityMixin",
+    "ClientPlayProtocolMixin",
+    "GameMenuScreenMixin",
+    "HandledScreenMixin",
+    "InGameHudMixin",
+    "MinecraftClientMixin",
+    "ParticleHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
