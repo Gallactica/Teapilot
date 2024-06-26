@@ -31,6 +31,8 @@ import me.teawin.teapilot.protocol.request.player.movement.PlayerMovementRequest
 import me.teawin.teapilot.protocol.request.scoreboard.SidebarRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsSetRequest;
+import me.teawin.teapilot.protocol.request.visual.ItemToastRequest;
+import me.teawin.teapilot.protocol.request.world.WorldBlockGetRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockAreaRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockGetRequest;
 import me.teawin.teapilot.protocol.request.world.WorldEntityGetRequest;
@@ -94,5 +96,6 @@ public class RequestDispatcher {
         register("world.block.get", WorldBlockGetRequest.class);
         register("world.block.area", WorldBlockAreaRequest.class);
         register("world.block.raycast", WorldBlockRaycastRequest.class);
+        register("visual.toast", ItemToastRequest.class);
     }
 }
