@@ -1,4 +1,4 @@
-package me.teawin.teapilot.protocol.request.player.container;
+package me.teawin.teapilot.protocol.request.container;
 
 import me.teawin.teapilot.mixin.HandledScreenAccessor;
 import me.teawin.teapilot.protocol.Request;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerContainerRequest extends Request {
+public class ContainerRequest extends Request {
     @Override
     public @Nullable Response call() throws Exception {
         Screen screen = MinecraftClient.getInstance().currentScreen;

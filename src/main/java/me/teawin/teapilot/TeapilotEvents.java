@@ -23,6 +23,7 @@ public enum TeapilotEvents {
     CONTAINER_CLOSE("container_close"),
     CONTAINER_UPDATE("container_update"),
     CONTAINER_UPDATE_SLOT("container_update_slot"),
+    CONTAINER_UPDATE_TRANSACTION("container_update_transaction"),
     BLOCK_UPDATE("block_update"),
     WORLD_CHANGE("world_change"),
     FISH_HOOK("fish_hook");
