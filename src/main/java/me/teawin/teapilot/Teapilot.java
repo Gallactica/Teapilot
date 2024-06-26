@@ -47,6 +47,7 @@ public class Teapilot implements ModInitializer {
         flagsManager.disable("PACKET_SOUND");
         flagsManager.disable("PACKET_ENTITY");
         flagsManager.disable("PACKET_CONTAINER");
+        flagsManager.disable("PACKET_PARTICLE");
 
         flagsManager.enable("DEBUG_PACKET_LOGGER");
 
