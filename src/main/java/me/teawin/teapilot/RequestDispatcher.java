@@ -26,13 +26,11 @@ import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventory
 import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventoryHandSelectRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookTargetRequest;
-import me.teawin.teapilot.protocol.request.player.movement.PlayerJumpRequest;
 import me.teawin.teapilot.protocol.request.player.movement.PlayerMovementRequest;
 import me.teawin.teapilot.protocol.request.scoreboard.SidebarRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsSetRequest;
 import me.teawin.teapilot.protocol.request.visual.ItemToastRequest;
-import me.teawin.teapilot.protocol.request.world.WorldBlockGetRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockAreaRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockGetRequest;
 import me.teawin.teapilot.protocol.request.world.WorldEntityGetRequest;
@@ -64,21 +62,29 @@ public class RequestDispatcher {
     }
 
     public RequestDispatcher() {
-        register("client", ClientRequest.class);
         register("teapilot", TeapilotRequest.class);
-        register("sidebar", SidebarRequest.class);
-        register("chat", ChatRequest.class);
-        register("tooltip", TooltipRequest.class);
         register("flags", FlagsRequest.class);
         register("flags.set", FlagsSetRequest.class);
+
+        register("sidebar", SidebarRequest.class);
+        register("client", ClientRequest.class);
+
+        register("chat", ChatRequest.class);
+        register("tooltip", TooltipRequest.class);
+
         register("player.info", PlayerInfoRequest.class);
         register("player.raycast", PlayerRaycastRequest.class);
+        register("player.chat", PlayerChatRequest.class);
+
         register("player.interact.use", PlayerUsePressRequest.class);
         register("player.interact.use.manual", PlayerUseRequest.class);
         register("player.interact.attack", PlayerAttackPressRequest.class);
         register("player.interact.attack.manual", PlayerAttackRequest.class);
         register("player.movement", PlayerMovementRequest.class);
-        register("player.movement.jump", PlayerJumpRequest.class);
+        register("player.rotate", PlayerRotateRequest.class);
+        register("player.look", PlayerLookRequest.class);
+        register("player.look.target", PlayerLookTargetRequest.class);
+
         register("player.inventory", PlayerInventoryRequest.class);
         register("player.inventory.hand", PlayerInventoryHandRequest.class);
         register("player.inventory.slot", PlayerInventorySlotRequest.class);
@@ -86,16 +92,15 @@ public class RequestDispatcher {
         register("player.inventory.close", PlayerInventoryCloseRequest.class);
         register("player.inventory.hand.select", PlayerInventoryHandSelectRequest.class);
         register("player.inventory.hand.drop", PlayerInventoryHandDropRequest.class);
-        register("player.rotate", PlayerRotateRequest.class);
-        register("player.look", PlayerLookRequest.class);
-        register("player.look.target", PlayerLookTargetRequest.class);
+
         register("player.container", PlayerContainerRequest.class);
         register("player.container.info", PlayerContainerInfoRequest.class);
-        register("player.chat", PlayerChatRequest.class);
+
         register("world.entity.get", WorldEntityGetRequest.class);
         register("world.block.get", WorldBlockGetRequest.class);
         register("world.block.area", WorldBlockAreaRequest.class);
         register("world.block.raycast", WorldBlockRaycastRequest.class);
+
         register("visual.toast", ItemToastRequest.class);
     }
 }
