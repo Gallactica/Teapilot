@@ -31,8 +31,10 @@ import me.teawin.teapilot.protocol.request.player.movement.PlayerMovementRequest
 import me.teawin.teapilot.protocol.request.scoreboard.SidebarRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsSetRequest;
-import me.teawin.teapilot.protocol.request.world.WorldBlockGetRequest;
+import me.teawin.teapilot.protocol.request.world.block.WorldBlockAreaRequest;
+import me.teawin.teapilot.protocol.request.world.block.WorldBlockGetRequest;
 import me.teawin.teapilot.protocol.request.world.WorldEntityGetRequest;
+import me.teawin.teapilot.protocol.request.world.block.WorldBlockRaycastRequest;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -90,5 +92,7 @@ public class RequestDispatcher {
         register("player.chat", PlayerChatRequest.class);
         register("world.entity.get", WorldEntityGetRequest.class);
         register("world.block.get", WorldBlockGetRequest.class);
+        register("world.block.area", WorldBlockAreaRequest.class);
+        register("world.block.raycast", WorldBlockRaycastRequest.class);
     }
 }
