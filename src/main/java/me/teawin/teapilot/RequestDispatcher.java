@@ -11,8 +11,9 @@ import me.teawin.teapilot.protocol.request.player.PlayerChatRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerInfoRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerRaycastRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerRotateRequest;
-import me.teawin.teapilot.protocol.request.player.container.PlayerContainerInfoRequest;
-import me.teawin.teapilot.protocol.request.player.container.PlayerContainerRequest;
+import me.teawin.teapilot.protocol.request.container.ContainerInfoRequest;
+import me.teawin.teapilot.protocol.request.container.ContainerRequest;
+import me.teawin.teapilot.protocol.request.container.ContainerSlotClickRequest;
 import me.teawin.teapilot.protocol.request.player.interact.PlayerAttackRequest;
 import me.teawin.teapilot.protocol.request.player.interact.PlayerAttackPressRequest;
 import me.teawin.teapilot.protocol.request.player.interact.PlayerUsePressRequest;
@@ -93,8 +94,9 @@ public class RequestDispatcher {
         register("player.inventory.hand.select", PlayerInventoryHandSelectRequest.class);
         register("player.inventory.hand.drop", PlayerInventoryHandDropRequest.class);
 
-        register("player.container", PlayerContainerRequest.class);
-        register("player.container.info", PlayerContainerInfoRequest.class);
+        register("container", ContainerRequest.class);
+        register("container.info", ContainerInfoRequest.class);
+        register("container.slot.click", ContainerSlotClickRequest.class);
 
         register("world.entity.get", WorldEntityGetRequest.class);
         register("world.block.get", WorldBlockGetRequest.class);

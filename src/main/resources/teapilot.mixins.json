@@ -8,10 +8,12 @@
     "KeyBindingAccessor",
     "MinecraftClientAccessor",
     "ParticleAccessor",
+    "SlotAccessor",
     "ScreenAccessor"
   ],
   "client": [
     "ClientPlayerEntityMixin",
+    "ClientPlayerInteractionManagerMixin",
     "ClientPlayProtocolMixin",
     "HandledScreenMixin",
     "InGameHudMixin",

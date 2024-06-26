@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import me.teawin.teapilot.mixin.HandledScreenAccessor;
+import me.teawin.teapilot.protocol.type.SlotItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
@@ -230,5 +231,12 @@ public class JsonUtils {
         double y = positionJson.get("y").getAsDouble();
         double z = positionJson.get("z").getAsDouble();
         return new PositionImpl(x, y, z);
+    }
+
+    public static JsonElement fromSlotItem(SlotItem slotItem) {
+        JsonObject slotItemJson = new JsonObject();
+        slotItemJson.add("slot", new JsonPrimitive(slotItem.getSlot()));
+        slotItemJson.add("item", fromItemStack(slotItem.getItem()));
+        return slotItemJson;
     }
 }
