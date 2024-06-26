@@ -1,5 +1,8 @@
 package me.teawin.teapilot.proposal;
 
+import me.teawin.teapilot.mixin.KeyBindingAccessor;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 
@@ -8,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class MovementOverride {
+public class Movement {
 
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -38,7 +41,9 @@ public class MovementOverride {
         jumping = jump;
         sprinting = sprint;
 
-        scheduledFuture = scheduler.schedule(MovementOverride::reset, ms, TimeUnit.MILLISECONDS);
+        KeyBinding.setKeyPressed(((KeyBindingAccessor) MinecraftClient.getInstance().options.sprintKey).getBoundKey(), sprint);
+
+        scheduledFuture = scheduler.schedule(Movement::reset, ms, TimeUnit.MILLISECONDS);
     }
 
     public static void reset() {
