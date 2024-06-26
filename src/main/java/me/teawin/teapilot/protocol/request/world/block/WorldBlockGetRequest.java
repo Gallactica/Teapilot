@@ -1,4 +1,4 @@
-package me.teawin.teapilot.protocol.request.world;
+package me.teawin.teapilot.protocol.request.world.block;
 
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;

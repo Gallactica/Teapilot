@@ -20,6 +20,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Position;
+import net.minecraft.util.math.PositionImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -213,5 +214,21 @@ public class JsonUtils {
 
     public static Text toText(JsonElement json) {
         return Text.Serializer.fromJson(json);
+    }
+
+    public static BlockPos toBlockPos(JsonElement json) {
+        JsonObject positionJson = json.getAsJsonObject();
+        int x = positionJson.get("x").getAsInt();
+        int y = positionJson.get("y").getAsInt();
+        int z = positionJson.get("z").getAsInt();
+        return new BlockPos(x, y, z);
+    }
+
+    public static Position toPosition(JsonElement json) {
+        JsonObject positionJson = json.getAsJsonObject();
+        double x = positionJson.get("x").getAsDouble();
+        double y = positionJson.get("y").getAsDouble();
+        double z = positionJson.get("z").getAsDouble();
+        return new PositionImpl(x, y, z);
     }
 }
