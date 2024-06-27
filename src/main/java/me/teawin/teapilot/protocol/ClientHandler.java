@@ -41,20 +41,13 @@ public class ClientHandler implements Runnable {
                     readPacket(packet);
                 }
             }
-            // Remove the client from the list when the connection is closed
-            teapilotServer.clients.remove(clientSocket);
-
-            TeapilotServer.LOGGER.info("Client disconnected");
-        } catch (IOException e) {
-
-            TeapilotServer.LOGGER.error("Read failed: " + e.getMessage());
-            // Remove the client from the list when an exception occurs
-            teapilotServer.clients.remove(clientSocket);
-
-            TeapilotServer.LOGGER.info("Client disconnected");
+        } catch (IOException exception) {
+            TeapilotServer.LOGGER.error("Read failed: " + exception.getMessage());
         } finally {
             try {
                 clientSocket.close();
+                teapilotServer.clients.remove(clientSocket);
+                TeapilotServer.LOGGER.info("Client disconnected");
             } catch (IOException e) {
                 TeapilotServer.LOGGER.error("Failed to close client socket: " + e.getMessage());
             }
@@ -62,7 +55,8 @@ public class ClientHandler implements Runnable {
     }
 
     void readPacket(String message) {
-        if (Teapilot.flagsManager.isEnabled("DEBUG_PACKET_LOGGER")) TeapilotServer.LOGGER.info("Packet in:\n" + message);
+        if (Teapilot.flagsManager.isEnabled("DEBUG_PACKET_LOGGER"))
+            TeapilotServer.LOGGER.info("Packet in:\n" + message);
 
         JsonElement jsonElement = JsonParser.parseString(message);
         JsonObject jsonObject = jsonElement.getAsJsonObject();

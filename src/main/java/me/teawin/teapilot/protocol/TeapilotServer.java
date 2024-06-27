@@ -1,8 +1,8 @@
 package me.teawin.teapilot.protocol;
 
 import com.google.gson.JsonObject;
-import me.teawin.teapilot.Teapilot;
 import me.teawin.teapilot.RequestDispatcher;
+import me.teawin.teapilot.Teapilot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,18 +10,16 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class TeapilotServer {
     private final ServerSocket serverSocket;
     public final List<Socket> clients = new CopyOnWriteArrayList<>();
-
     public static final Logger LOGGER = LoggerFactory.getLogger("Teapilot/Protocol");
-
     private final RequestDispatcher manager;
-
     public final int port;
-
+    public ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<>();
 
     public TeapilotServer(RequestDispatcher manager) throws IOException {
 
@@ -49,10 +47,11 @@ public class TeapilotServer {
         LOGGER.info("Server is running and waiting for client connections...");
     }
 
-    Thread currentThread;
+    Thread readThread;
+    Thread writeThread;
 
     public void start() {
-        currentThread = new Thread(() -> {
+        readThread = new Thread(() -> {
             while (true) {
                 try {
                     Socket clientSocket = serverSocket.accept();
@@ -64,7 +63,36 @@ public class TeapilotServer {
                 }
             }
         });
-        currentThread.start();
+        readThread.start();
+
+        writeThread = new Thread(() -> {
+            while (true) {
+                if (queue.isEmpty()) {
+                    continue;
+                }
+
+                String message = queue.poll();
+
+                if (message == null) {
+                    continue;
+                }
+
+                if (Teapilot.flagsManager.isEnabled("DEBUG_PACKET_LOGGER")) {
+                    TeapilotServer.LOGGER.info("Packet out:\n" + message);
+                }
+
+                for (Socket client : clients) {
+                    try {
+                        PrintWriter out = new PrintWriter(client.getOutputStream());
+                        out.write(message + '\n');
+                        out.flush();
+                    } catch (IOException e) {
+                        TeapilotServer.LOGGER.error("Write failed: " + e.getMessage());
+                    }
+                }
+            }
+        });
+        writeThread.start();
     }
 
     public boolean hasClients() {
@@ -80,23 +108,6 @@ public class TeapilotServer {
     }
 
     public void broadcast(String message) {
-        broadcast(message, clients);
-    }
-
-    public void broadcast(String message, List<Socket> clients) {
-        if (Teapilot.flagsManager.isEnabled("DEBUG_PACKET_LOGGER"))
-            TeapilotServer.LOGGER.info("Packet out:\n" + message);
-
-        CompletableFuture.supplyAsync(() -> {
-            for (Socket client : clients) {
-                try {
-                    PrintWriter out = new PrintWriter(client.getOutputStream(), true);
-                    out.println(message);
-                } catch (IOException e) {
-                    TeapilotServer.LOGGER.error("Write failed: " + e.getMessage());
-                }
-            }
-            return null;
-        });
+        queue.add(message);
     }
 }
