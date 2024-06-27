@@ -29,6 +29,8 @@ import me.teawin.teapilot.protocol.request.player.look.PlayerLookRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookTargetRequest;
 import me.teawin.teapilot.protocol.request.player.movement.PlayerMovementRequest;
 import me.teawin.teapilot.protocol.request.scoreboard.SidebarRequest;
+import me.teawin.teapilot.protocol.request.sign.SignEditRequest;
+import me.teawin.teapilot.protocol.request.sign.SignFinishRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsSetRequest;
 import me.teawin.teapilot.protocol.request.visual.ItemToastRequest;
@@ -112,5 +114,8 @@ public class RequestDispatcher {
         register("world.raycast", WorldRaycastRequest.class);
 
         register("visual.toast", ItemToastRequest.class);
+
+        register("sign.edit", SignEditRequest.class);
+        register("sign.finish", SignFinishRequest.class);
     }
 }

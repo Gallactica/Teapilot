@@ -26,6 +26,8 @@ public enum TeapilotEvents {
     CONTAINER_UPDATE_TRANSACTION("container_update_transaction"),
     BLOCK_UPDATE("block_update"),
     WORLD_CHANGE("world_change"),
+    SIGN_OPEN("sign_open"),
+    SIGN_CLOSE("sign_close"),
     FISH_HOOK("fish_hook");
 
     private final String name;

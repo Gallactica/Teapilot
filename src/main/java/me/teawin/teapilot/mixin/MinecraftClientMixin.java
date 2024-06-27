@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.AbstractSignEditScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +26,10 @@ public class MinecraftClientMixin {
     @Shadow
     @Nullable
     public ClientWorld world;
+
+    @Shadow
+    @Nullable
+    public Screen currentScreen;
 
     @Inject(method = "joinWorld", at = @At("TAIL"))
     public void joinWorld(ClientWorld world, CallbackInfo ci) {
@@ -54,5 +59,13 @@ public class MinecraftClientMixin {
     private Overlay tick2(Overlay original) {
         if (player == null) return original;
         return null;
+    }
+
+    @Inject(method = "setScreen", at = @At("HEAD"))
+    public void joinWorld(Screen screen, CallbackInfo ci) {
+        if (currentScreen instanceof AbstractSignEditScreen && screen == null) {
+            var event = TeapilotEvents.createEvent(TeapilotEvents.SIGN_CLOSE);
+            Teapilot.teapilotServer.broadcast(event);
+        }
     }
 }

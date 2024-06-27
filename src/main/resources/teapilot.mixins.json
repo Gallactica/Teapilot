@@ -4,17 +4,19 @@
   "package": "me.teawin.teapilot.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AbstractSignEditScreenAccessor",
     "HandledScreenAccessor",
     "KeyBindingAccessor",
     "MinecraftClientAccessor",
     "ParticleAccessor",
-    "SlotAccessor",
-    "ScreenAccessor"
+    "ScreenAccessor",
+    "SlotAccessor"
   ],
   "client": [
     "ClientPlayerEntityMixin",
     "ClientPlayerInteractionManagerMixin",
     "ClientPlayProtocolMixin",
+    "GameMenuScreenMixin",
     "HandledScreenMixin",
     "InGameHudMixin",
     "KeyBindingMixin",
