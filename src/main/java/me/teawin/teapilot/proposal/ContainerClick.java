@@ -16,13 +16,14 @@ public class ContainerClick {
 
     public static void clickSlot(Slot slot, int index, int button, boolean stack, boolean shift) {
         if (MinecraftClient.getInstance().currentScreen != null) {
-            HandledScreenAccessor screen = (HandledScreenAccessor) MinecraftClient.getInstance().currentScreen;
-
             int buttonType = BUTTON_THROW == button || index == SLOT_OUTSIDE ? index == SLOT_OUTSIDE ? (stack ? BUTTON_LEFT : BUTTON_RIGHT) : (stack ? BUTTON_RIGHT : BUTTON_LEFT) : button;
 
             SlotActionType actionType = BUTTON_THROW == button ? index == SLOT_OUTSIDE ? SlotActionType.PICKUP : SlotActionType.THROW : shift ? SlotActionType.QUICK_MOVE : SlotActionType.PICKUP;
 
-            screen.callOnMouseClick(slot, index, buttonType, actionType);
+            MinecraftClient.getInstance().execute(() -> {
+                HandledScreenAccessor screen = (HandledScreenAccessor) MinecraftClient.getInstance().currentScreen;
+                screen.callOnMouseClick(slot, index, buttonType, actionType);
+            });
         }
     }
 
