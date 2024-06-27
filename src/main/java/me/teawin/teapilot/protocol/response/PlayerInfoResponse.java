@@ -2,6 +2,7 @@ package me.teawin.teapilot.protocol.response;
 
 import me.teawin.teapilot.protocol.Response;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Position;
 
 public class PlayerInfoResponse extends Response {
     private final int id;
@@ -13,8 +14,10 @@ public class PlayerInfoResponse extends Response {
     private final int exp;
     private final int totalExp;
     private final Entity fishHook;
+    private final Position pos;
+    private final double eyeY;
 
-    public PlayerInfoResponse(int id, String uuid, int hotbarSlot, double health, int food, float saturation, int exp, int totalExp, Entity fishHook) {
+    public PlayerInfoResponse(int id, String uuid, int hotbarSlot, double health, int food, float saturation, int exp, int totalExp, Entity fishHook, Position pos, double eyeY) {
         this.id = id;
         this.uuid = uuid;
         this.hotbarSlot = hotbarSlot;
@@ -24,6 +27,8 @@ public class PlayerInfoResponse extends Response {
         this.exp = exp;
         this.totalExp = totalExp;
         this.fishHook = fishHook;
+        this.pos = pos;
+        this.eyeY = eyeY;
     }
 
     public int getId() {

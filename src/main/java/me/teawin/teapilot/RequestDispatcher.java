@@ -26,6 +26,7 @@ import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventory
 import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventoryHandRequest;
 import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventoryHandSelectRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookRequest;
+import me.teawin.teapilot.protocol.request.player.PlayerEntitySeeRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookTargetRequest;
 import me.teawin.teapilot.protocol.request.player.movement.PlayerMovementRequest;
 import me.teawin.teapilot.protocol.request.scoreboard.SidebarRequest;
@@ -90,6 +91,7 @@ public class RequestDispatcher {
         register("player.rotate", PlayerRotateRequest.class);
         register("player.look", PlayerLookRequest.class);
         register("player.look.target", PlayerLookTargetRequest.class);
+        register("player.entity.see", PlayerEntitySeeRequest.class);
 
         register("player.inventory", PlayerInventoryRequest.class);
         register("player.inventory.hand", PlayerInventoryHandRequest.class);

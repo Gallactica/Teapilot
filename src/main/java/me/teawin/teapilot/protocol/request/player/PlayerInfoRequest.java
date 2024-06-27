@@ -25,7 +25,9 @@ public class PlayerInfoRequest extends Request {
                 hungerManager.getSaturationLevel(),
                 player.experienceLevel,
                 player.totalExperience,
-                fishHook
+                fishHook,
+                player.getPos(),
+                player.getEyeY()
         );
     }
 }
