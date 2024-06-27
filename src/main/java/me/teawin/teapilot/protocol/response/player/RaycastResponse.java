@@ -13,6 +13,10 @@ public class RaycastResponse extends Response {
     private BlockState block;
     private Position position;
 
+    public RaycastResponse() {
+        setType("MISS");
+    }
+
     public void setType(String type) {
         this.type = type;
     }

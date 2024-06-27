@@ -32,10 +32,13 @@ import me.teawin.teapilot.protocol.request.scoreboard.SidebarRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsSetRequest;
 import me.teawin.teapilot.protocol.request.visual.ItemToastRequest;
+import me.teawin.teapilot.protocol.request.world.WorldRaycastRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockAreaRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockGetRequest;
-import me.teawin.teapilot.protocol.request.world.WorldEntityGetRequest;
+import me.teawin.teapilot.protocol.request.world.entity.WorldEntityAreaRequest;
+import me.teawin.teapilot.protocol.request.world.entity.WorldEntityGetRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockRaycastRequest;
+import me.teawin.teapilot.protocol.request.world.entity.WorldEntityRaycastRequest;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -99,9 +102,14 @@ public class RequestDispatcher {
         register("container.slot.click", ContainerSlotClickRequest.class);
 
         register("world.entity.get", WorldEntityGetRequest.class);
+        register("world.entity.area", WorldEntityAreaRequest.class);
+        register("world.entity.raycast", WorldEntityRaycastRequest.class);
+
         register("world.block.get", WorldBlockGetRequest.class);
         register("world.block.area", WorldBlockAreaRequest.class);
         register("world.block.raycast", WorldBlockRaycastRequest.class);
+
+        register("world.raycast", WorldRaycastRequest.class);
 
         register("visual.toast", ItemToastRequest.class);
     }
