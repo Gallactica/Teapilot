@@ -1,20 +1,20 @@
-package me.teawin.teapilot.protocol.request.world.block;
+package me.teawin.teapilot.protocol.request.world.entity;
 
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
-import me.teawin.teapilot.protocol.response.world.WorldBlockAreaResponse;
-import me.teawin.teapilot.protocol.type.BlockWithPos;
-import net.minecraft.block.Blocks;
+import me.teawin.teapilot.protocol.response.world.WorldEntityAreaResponse;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
-public class WorldBlockAreaRequest extends Request {
+public class WorldEntityAreaRequest extends Request {
 
-    private boolean noAir;
     private BlockPos position;
     private int radius;
     private boolean relative;
@@ -43,15 +43,8 @@ public class WorldBlockAreaRequest extends Request {
         assert start != null;
         assert end != null;
 
-        List<BlockWithPos> blocks = new ArrayList<>();
+        List<Entity> targetEntities = world.getEntitiesByClass(Entity.class, new Box(start, end), Predicate.not(Predicate.isEqual(MinecraftClient.getInstance().player)));
 
-        for (BlockPos blockPos : BlockPos.iterate(start, end)) {
-            var blockState = world.getBlockState(blockPos);
-            if (noAir && (blockState.getBlock().equals(Blocks.AIR) || blockState.getBlock().equals(Blocks.VOID_AIR)))
-                continue;
-            blocks.add(new BlockWithPos(blockPos.toImmutable(), blockState));
-        }
-
-        return new WorldBlockAreaResponse(blocks);
+        return new WorldEntityAreaResponse(targetEntities);
     }
 }
