@@ -92,6 +92,14 @@ public abstract class ClientPlayProtocolMixin {
     public void onScoreboardPlayerUpdate(ScoreboardPlayerUpdateS2CPacket packet, CallbackInfo ci) {
     }
 
+    @Inject(method = "onCloseScreen", at = @At("TAIL"))
+    public void onCloseScreen(CloseScreenS2CPacket packet, CallbackInfo ci) {
+        if (Teapilot.flagsManager.isDisabled("PACKET_CONTAINER")) return;
+        var event = TeapilotEvents.createEvent(TeapilotEvents.CONTAINER_CLOSE);
+        event.addProperty("side", "server");
+        Teapilot.teapilotServer.broadcast(event);
+    }
+
     @Inject(method = "onBlockUpdate", at = @At("TAIL"))
     public void onBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
         if (Teapilot.flagsManager.isDisabled("PACKET_BLOCK_UPDATE")) return;

@@ -204,11 +204,9 @@ public class Teapilot implements ModInitializer {
                 return;
             }
             HandledScreenAccessor containerScreenAccessor = (HandledScreenAccessor) screen;
-
             var event = TeapilotEvents.createEvent(TeapilotEvents.CONTAINER_OPEN);
-
+            event.addProperty("name", screen.getClass().getSimpleName());
             event.add("screen", JsonUtils.fromScreen(containerScreen));
-
             Teapilot.teapilotServer.broadcast(event);
         });
     }
