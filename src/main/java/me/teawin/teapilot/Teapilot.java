@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 
 public class Teapilot implements ModInitializer {
     public static FlagsManager flagsManager = new FlagsManager();
@@ -32,8 +33,12 @@ public class Teapilot implements ModInitializer {
     public static TeapilotServer teapilotServer = getTcpServer();
     public static final Logger LOGGER = LoggerFactory.getLogger("Teapilot");
 
+    public static boolean isDebug = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("jdwp");
+
     @Override
     public void onInitialize() {
+
+        LOGGER.info("Running with packet logging " + (isDebug ? "enabled" : "disabled"));
 
         flagsManager.disable("INTERCEPT_CHAT");
         flagsManager.disable("INTERCEPT_SEND_CHAT_MESSAGE");
@@ -49,7 +54,7 @@ public class Teapilot implements ModInitializer {
         flagsManager.disable("PACKET_CONTAINER");
         flagsManager.disable("PACKET_PARTICLE");
 
-        flagsManager.enable("DEBUG_PACKET_LOGGER");
+        flagsManager.set("DEBUG_PACKET_LOGGER", isDebug);
 
         ClientSendMessageEvents.ALLOW_CHAT.register(message -> {
             if (flagsManager.isDisabled("INTERCEPT_SEND_CHAT_MESSAGE")) return true;
