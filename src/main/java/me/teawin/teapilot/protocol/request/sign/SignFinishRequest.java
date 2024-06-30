@@ -1,6 +1,6 @@
 package me.teawin.teapilot.protocol.request.sign;
 
-import me.teawin.teapilot.mixin.AbstractSignEditScreenAccessor;
+import me.teawin.teapilot.mixin.accessor.AbstractSignEditScreenAccessor;
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import net.minecraft.client.MinecraftClient;

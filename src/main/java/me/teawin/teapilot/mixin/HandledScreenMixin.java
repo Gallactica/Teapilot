@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import me.teawin.teapilot.JsonUtils;
 import me.teawin.teapilot.Teapilot;
 import me.teawin.teapilot.TeapilotEvents;
+import me.teawin.teapilot.mixin.accessor.ScreenAccessor;
 import me.teawin.teapilot.proposal.TooltipExchanger;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;

@@ -1,7 +1,7 @@
 package me.teawin.teapilot.proposal;
 
-import me.teawin.teapilot.mixin.HandledScreenAccessor;
-import me.teawin.teapilot.mixin.SlotAccessor;
+import me.teawin.teapilot.mixin.accessor.HandledScreenAccessor;
+import me.teawin.teapilot.mixin.accessor.SlotAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;

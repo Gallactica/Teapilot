@@ -3,7 +3,7 @@ package me.teawin.teapilot;
 import com.google.gson.*;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import me.teawin.teapilot.mixin.HandledScreenAccessor;
+import me.teawin.teapilot.mixin.accessor.HandledScreenAccessor;
 import me.teawin.teapilot.protocol.type.SlotItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;

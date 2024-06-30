@@ -1,6 +1,6 @@
 package me.teawin.teapilot.proposal;
 
-import me.teawin.teapilot.mixin.KeyBindingAccessor;
+import me.teawin.teapilot.mixin.accessor.KeyBindingAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.util.math.MathHelper;
