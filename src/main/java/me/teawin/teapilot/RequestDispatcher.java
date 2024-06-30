@@ -11,7 +11,7 @@ import me.teawin.teapilot.protocol.request.player.PlayerChatRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerInfoRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerRaycastRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerRotateRequest;
-import me.teawin.teapilot.protocol.request.container.ContainerInfoRequest;
+import me.teawin.teapilot.protocol.request.container.ContainerScreenRequest;
 import me.teawin.teapilot.protocol.request.container.ContainerRequest;
 import me.teawin.teapilot.protocol.request.container.ContainerSlotClickRequest;
 import me.teawin.teapilot.protocol.request.player.interact.PlayerAttackRequest;
@@ -102,7 +102,7 @@ public class RequestDispatcher {
         register("player.inventory.hand.drop", PlayerInventoryHandDropRequest.class);
 
         register("container", ContainerRequest.class);
-        register("container.info", ContainerInfoRequest.class);
+        register("container.screen", ContainerScreenRequest.class);
         register("container.slot.click", ContainerSlotClickRequest.class);
 
         register("world.entity.get", WorldEntityGetRequest.class);
