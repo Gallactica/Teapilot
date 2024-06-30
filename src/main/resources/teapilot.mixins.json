@@ -22,6 +22,8 @@
     "KeyBindingMixin",
     "KeyboardInputMixin",
     "MinecraftClientMixin",
+    "ParticleHandlerMixin",
+    "WindowMixin"
   ],
   "injectors": {
     "defaultRequire": 1
