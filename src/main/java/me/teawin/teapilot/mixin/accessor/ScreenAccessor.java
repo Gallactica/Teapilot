@@ -1,4 +1,4 @@
-package me.teawin.teapilot.mixin;
+package me.teawin.teapilot.mixin.accessor;
 
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;

@@ -1,6 +1,6 @@
 package me.teawin.teapilot.protocol.request.container;
 
-import me.teawin.teapilot.mixin.HandledScreenAccessor;
+import me.teawin.teapilot.mixin.accessor.HandledScreenAccessor;
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import me.teawin.teapilot.protocol.response.player.container.PlayerContainerResponse;

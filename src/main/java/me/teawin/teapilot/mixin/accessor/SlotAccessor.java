@@ -1,4 +1,4 @@
-package me.teawin.teapilot.mixin;
+package me.teawin.teapilot.mixin.accessor;
 
 import net.minecraft.screen.slot.Slot;
 import org.spongepowered.asm.mixin.Mixin;

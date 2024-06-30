@@ -28,6 +28,8 @@ public enum TeapilotEvents {
     WORLD_CHANGE("world_change"),
     SIGN_OPEN("sign_open"),
     SIGN_CLOSE("sign_close"),
+    WINDOW_FOCUS("window_focus"),
+    WINDOW_BLUR("window_blur"),
     FISH_HOOK("fish_hook");
 
     private final String name;

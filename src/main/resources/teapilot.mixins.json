@@ -4,13 +4,13 @@
   "package": "me.teawin.teapilot.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "AbstractSignEditScreenAccessor",
-    "HandledScreenAccessor",
-    "KeyBindingAccessor",
-    "MinecraftClientAccessor",
-    "ParticleAccessor",
-    "ScreenAccessor",
-    "SlotAccessor"
+    "accessor.AbstractSignEditScreenAccessor",
+    "accessor.HandledScreenAccessor",
+    "accessor.KeyBindingAccessor",
+    "accessor.MinecraftClientAccessor",
+    "accessor.ParticleAccessor",
+    "accessor.ScreenAccessor",
+    "accessor.SlotAccessor"
   ],
   "client": [
     "ClientPlayerEntityMixin",
@@ -22,7 +22,8 @@
     "KeyBindingMixin",
     "KeyboardInputMixin",
     "MinecraftClientMixin",
-    "ParticleHandlerMixin"
+    "ParticleHandlerMixin",
+    "WindowMixin"
   ],
   "injectors": {
     "defaultRequire": 1
