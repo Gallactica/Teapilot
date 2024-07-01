@@ -38,7 +38,8 @@ public class Teapilot implements ModInitializer {
     public static TeapilotServer teapilotServer = getTcpServer();
     public static final Logger LOGGER = LoggerFactory.getLogger("Teapilot");
 
-    public static boolean isDebug = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("jdwp");
+    public static boolean isDebug = ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
+            .contains("jdwp");
 
     @Override
     public void onInitialize() {
@@ -58,6 +59,8 @@ public class Teapilot implements ModInitializer {
         flagsManager.disable("PACKET_ENTITY");
         flagsManager.disable("PACKET_CONTAINER");
         flagsManager.disable("PACKET_PARTICLE");
+
+        flagsManager.disable("EXPERIMENT_TEXT_SERIALIZATION");
 
         flagsManager.disable("PILOT_CONTROL_ONLY");
 
@@ -133,7 +136,8 @@ public class Teapilot implements ModInitializer {
 
             assert MinecraftClient.getInstance().player != null;
 
-            jsonObject.addProperty("event", overlay ? TeapilotEvents.OVERLAY.toString() : TeapilotEvents.CHAT.toString());
+            jsonObject.addProperty("event",
+                    overlay ? TeapilotEvents.OVERLAY.toString() : TeapilotEvents.CHAT.toString());
             jsonObject.addProperty("text", message.getString());
             jsonObject.add("message", Text.Serializer.toJsonTree(message));
 
@@ -193,19 +197,20 @@ public class Teapilot implements ModInitializer {
             teapilotServer.broadcast(jsonObject);
         });
 
-        ClientLifecycleEvents.CLIENT_STARTED.register(client -> client.getSoundManager().registerListener((sound, soundSet) -> {
-            if (flagsManager.isDisabled("PACKET_SOUND")) return;
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> client.getSoundManager()
+                .registerListener((sound, soundSet) -> {
+                    if (flagsManager.isDisabled("PACKET_SOUND")) return;
 
-            JsonObject jsonObject = new JsonObject();
+                    JsonObject jsonObject = new JsonObject();
 
-            jsonObject.addProperty("event", TeapilotEvents.SOUND.toString());
-            jsonObject.addProperty("id", sound.getId().toString());
-            jsonObject.addProperty("volume", sound.getVolume());
-            jsonObject.addProperty("pitch", sound.getPitch());
-            jsonObject.add("position", JsonUtils.fromPosition(sound.getX(), sound.getY(), sound.getZ()));
+                    jsonObject.addProperty("event", TeapilotEvents.SOUND.toString());
+                    jsonObject.addProperty("id", sound.getId().toString());
+                    jsonObject.addProperty("volume", sound.getVolume());
+                    jsonObject.addProperty("pitch", sound.getPitch());
+                    jsonObject.add("position", JsonUtils.fromPosition(sound.getX(), sound.getY(), sound.getZ()));
 
-            teapilotServer.broadcast(jsonObject);
-        }));
+                    teapilotServer.broadcast(jsonObject);
+                }));
 
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (screen instanceof AbstractSignEditScreen signEditScreen) {
