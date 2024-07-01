@@ -1,4 +1,4 @@
-package me.teawin.teapilot.protocol.request.player.interact;
+package me.teawin.teapilot.protocol.request.player.movement;
 
 import me.teawin.teapilot.proposal.ControlOverride;
 import me.teawin.teapilot.protocol.Request;
@@ -6,14 +6,12 @@ import me.teawin.teapilot.protocol.Response;
 import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.Nullable;
 
-public class PlayerAttackPressRequest extends Request {
-    private int duration;
+public class PlayerMovementSneakingRequest extends Request {
+    int duration;
 
     @Override
     public @Nullable Response call() throws Exception {
-        var player = MinecraftClient.getInstance().player;
-        assert player != null;
-        ControlOverride.press(MinecraftClient.getInstance().options.attackKey, duration);
+        ControlOverride.press(MinecraftClient.getInstance().options.sneakKey, duration);
         return null;
     }
 }

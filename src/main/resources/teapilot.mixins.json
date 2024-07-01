@@ -6,6 +6,7 @@
   "mixins": [
     "accessor.AbstractSignEditScreenAccessor",
     "accessor.HandledScreenAccessor",
+    "accessor.InputUtilTypeAccessor",
     "accessor.KeyBindingAccessor",
     "accessor.MinecraftClientAccessor",
     "accessor.ParticleAccessor",

@@ -1,8 +1,6 @@
 package me.teawin.teapilot.proposal;
 
-import me.teawin.teapilot.mixin.accessor.KeyBindingAccessor;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 
@@ -16,18 +14,31 @@ public class Movement {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public static Vec2f vec = new Vec2f(0, 0);
-    public static boolean sneaking = false;
-    public static boolean jumping = false;
-    public static boolean sprinting = false;
 
     private static ScheduledFuture<?> scheduledFuture = null;
 
-    public static void setMovement(float x, float y, boolean sneak, boolean jump, boolean sprint, int ms) {
+    public static void setMovement(float x, float y, boolean sneak, boolean jump, boolean sprint, int duration) {
+        setMovement(x, y, duration);
+
+        if (duration <= 0) {
+            resetKeys();
+            return;
+        }
+
+        if (jump)
+            ControlOverride.press(MinecraftClient.getInstance().options.jumpKey, duration);
+        if (sneak)
+            ControlOverride.press(MinecraftClient.getInstance().options.sneakKey, duration);
+        if (sprint)
+            ControlOverride.press(MinecraftClient.getInstance().options.sprintKey, duration);
+    }
+
+    public static void setMovement(float x, float y, int duration) {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
 
-        if (ms == 0) {
+        if (duration <= 0) {
             reset();
             return;
         }
@@ -37,19 +48,16 @@ public class Movement {
 
         vec = new Vec2f(dx, dy);
 
-        sneaking = sneak;
-        jumping = jump;
-        sprinting = sprint;
-
-        KeyBinding.setKeyPressed(((KeyBindingAccessor) MinecraftClient.getInstance().options.sprintKey).getBoundKey(), sprint);
-
-        scheduledFuture = scheduler.schedule(Movement::reset, ms, TimeUnit.MILLISECONDS);
+        scheduledFuture = scheduler.schedule(Movement::reset, duration, TimeUnit.MILLISECONDS);
     }
 
     public static void reset() {
         vec = Vec2f.ZERO;
-        sneaking = false;
-        jumping = false;
-        sprinting = false;
+    }
+
+    public static void resetKeys() {
+        ControlOverride.press(MinecraftClient.getInstance().options.jumpKey, -1);
+        ControlOverride.press(MinecraftClient.getInstance().options.sneakKey, -1);
+        ControlOverride.press(MinecraftClient.getInstance().options.sprintKey, -1);
     }
 }

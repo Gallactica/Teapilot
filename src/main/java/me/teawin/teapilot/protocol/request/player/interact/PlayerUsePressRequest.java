@@ -1,6 +1,6 @@
 package me.teawin.teapilot.protocol.request.player.interact;
 
-import me.teawin.teapilot.proposal.Mouse;
+import me.teawin.teapilot.proposal.ControlOverride;
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +13,7 @@ public class PlayerUsePressRequest extends Request {
     public @Nullable Response call() throws Exception {
         var player = MinecraftClient.getInstance().player;
         assert player != null;
-        Mouse.useKey.press(duration);
+        ControlOverride.press(MinecraftClient.getInstance().options.useKey, duration);
         return null;
     }
 }
