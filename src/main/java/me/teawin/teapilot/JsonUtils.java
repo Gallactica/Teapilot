@@ -30,9 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class JsonUtils {
     public static JsonElement fromBlockState(BlockState blockState) {
         JsonObject blockObject = new JsonObject();
-        blockState.getRegistryEntry().getKey().ifPresent(blockRegistryKey -> {
-            blockObject.addProperty("id", blockRegistryKey.getValue().toString());
-        });
+        blockState.getRegistryEntry().getKey()
+                .ifPresent(blockRegistryKey -> blockObject.addProperty("id", blockRegistryKey.getValue().toString()));
         blockObject.add("properties", serializeState(blockState));
         return blockObject;
     }
@@ -41,7 +40,7 @@ public class JsonUtils {
         JsonObject screenJson = new JsonObject();
         screenJson.add("type", new JsonPrimitive("undefined"));
 
-        if (!(screen instanceof HandledScreen containerScreen)) {
+        if (!(screen instanceof HandledScreen<?> containerScreen)) {
             return screenJson;
         }
         HandledScreenAccessor containerScreenAccessor = (HandledScreenAccessor) screen;
@@ -74,7 +73,7 @@ public class JsonUtils {
             screenJson.add("rows", new JsonPrimitive(genericContainerScreen.getScreenHandler().getRows()));
         }
 
-        if (containerScreen instanceof InventoryScreen inventoryScreen) {
+        if (containerScreen instanceof InventoryScreen) {
             screenJson.add("type", new JsonPrimitive("player_inventory"));
         }
 
@@ -108,19 +107,56 @@ public class JsonUtils {
 
     public static JsonElement fromItemStack(ItemStack itemStack) {
         JsonObject jsonObject = new JsonObject();
-        itemStack.getRegistryEntry().getKey().ifPresent(itemRegistryKey -> {
-            jsonObject.addProperty("id", itemRegistryKey.getValue().toString());
-        });
-        if (itemStack.getCount() > 0 && !itemStack.getItem().equals(Items.AIR))
+
+        itemStack.getRegistryEntry().getKey()
+                .ifPresent(itemRegistryKey -> jsonObject.addProperty("id", itemRegistryKey.getValue().toString()));
+
+        if (itemStack.getCount() > 0 && !itemStack.getItem().equals(Items.AIR)) {
             jsonObject.addProperty("count", itemStack.getCount());
-//        jsonObject.addProperty("d", itemStack.getDamage());
+        }
+
         DataResult<JsonElement> result = ItemStack.CODEC.encodeStart(JsonOps.INSTANCE, itemStack);
-        jsonObject.add("tag", result.getOrThrow(true, s -> {
-        }).getAsJsonObject().get("tag"));
+        JsonElement tagElement = result.getOrThrow(true, s -> {
+        }).getAsJsonObject().get("tag");
+
+        if (tagElement != null) {
+            jsonObject.add("tag", tagElement);
+
+            if (tagElement.getAsJsonObject().has("display")) {
+                JsonObject display = tagElement.getAsJsonObject().getAsJsonObject("display");
+                tagElement.getAsJsonObject().remove("display");
+
+                if (display.has("Name")) {
+                    var nameString = display.getAsJsonPrimitive("Name");
+                    jsonObject.add("name", fromText(toText(JsonParser.parseString(nameString.getAsString()))));
+                }
+                if (display.has("Lore")) {
+                    var loreArray = display.getAsJsonArray("Lore");
+                    if (!loreArray.isEmpty()) {
+                        var lore = new JsonArray();
+                        for (JsonElement jsonElement : loreArray) {
+                            lore.add(fromText(toText(JsonParser.parseString(jsonElement.getAsString()))));
+                        }
+                        jsonObject.add("lore", lore);
+                    }
+                }
+            }
+        }
+
         return jsonObject;
     }
 
     public static JsonElement fromText(Text text) {
+        if (Teapilot.flagsManager.isEnabled("EXPERIMENT_TEXT_SERIALIZATION")) {
+            JsonElement json = Text.Serializer.toJsonTree(text);
+            JsonPrimitive content = new JsonPrimitive(text.getString());
+
+            JsonObject jsonElement = new JsonObject();
+            jsonElement.add("json", json);
+            jsonElement.add("text", content);
+
+            return jsonElement;
+        }
         return Text.Serializer.toJsonTree(text);
     }
 
@@ -186,8 +222,7 @@ public class JsonUtils {
         }
 
         if (entity instanceof Ownable ownable) {
-            if (ownable.getOwner() != null)
-                jsonObject.addProperty("owner", ownable.getOwner().getUuid().toString());
+            if (ownable.getOwner() != null) jsonObject.addProperty("owner", ownable.getOwner().getUuid().toString());
         }
 
         Entity vehicle = entity.getVehicle();
