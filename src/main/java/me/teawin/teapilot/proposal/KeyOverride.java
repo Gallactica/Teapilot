@@ -1,22 +1,22 @@
 package me.teawin.teapilot.proposal;
 
-import me.teawin.teapilot.mixin.accessor.KeyBindingAccessor;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class KeyPress {
+public class KeyOverride {
 
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static ScheduledFuture<?> scheduledFuture = null;
     private boolean pressed = false;
 
-    public final KeyBinding keyBinding;
+    public final InputUtil.Key keyBinding;
 
-    public KeyPress(KeyBinding keyBinding) {
+    public KeyOverride(InputUtil.Key keyBinding) {
         this.keyBinding = keyBinding;
     }
 
@@ -25,24 +25,27 @@ public class KeyPress {
             scheduledFuture.cancel(true);
         }
 
-        if (duration == 0) {
+        if (duration < 0) {
             reset();
             return;
         }
 
         boolean previous_pressed = pressed;
-
         pressed = true;
-        KeyBinding.setKeyPressed(((KeyBindingAccessor) keyBinding).getBoundKey(), pressed);
-        if (!previous_pressed)
-            KeyBinding.onKeyPressed(((KeyBindingAccessor) keyBinding).getBoundKey());
 
-        scheduledFuture = scheduler.schedule(this::reset, duration, TimeUnit.MILLISECONDS);
+        KeyBinding.setKeyPressed(keyBinding, true);
+
+        if (!previous_pressed || duration == 0) {
+            KeyBinding.onKeyPressed(keyBinding);
+        }
+
+        if (duration <= 0) reset();
+        else scheduledFuture = scheduler.schedule(this::reset, duration, TimeUnit.MILLISECONDS);
     }
 
     public void reset() {
         pressed = false;
-        KeyBinding.setKeyPressed(((KeyBindingAccessor) keyBinding).getBoundKey(), pressed);
+        KeyBinding.setKeyPressed(keyBinding, false);
     }
 
     public boolean isPressed() {

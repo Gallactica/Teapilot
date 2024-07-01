@@ -6,12 +6,12 @@ import me.teawin.teapilot.mixin.accessor.MinecraftClientAccessor;
 import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.Nullable;
 
-public class PlayerAttackRequest extends Request {
+public class PlayerUseUnsafeRequest extends Request {
     @Override
     public @Nullable Response call() throws Exception {
         var player = MinecraftClient.getInstance().player;
         assert player != null;
-        ((MinecraftClientAccessor) MinecraftClient.getInstance()).callDoAttack();
+        ((MinecraftClientAccessor) MinecraftClient.getInstance()).callDoItemUse();
         return null;
     }
 }

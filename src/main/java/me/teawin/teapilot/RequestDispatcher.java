@@ -14,10 +14,10 @@ import me.teawin.teapilot.protocol.request.player.PlayerRotateRequest;
 import me.teawin.teapilot.protocol.request.container.ContainerScreenRequest;
 import me.teawin.teapilot.protocol.request.container.ContainerRequest;
 import me.teawin.teapilot.protocol.request.container.ContainerSlotClickRequest;
-import me.teawin.teapilot.protocol.request.player.interact.PlayerAttackRequest;
+import me.teawin.teapilot.protocol.request.player.interact.PlayerAttackUnsafeRequest;
 import me.teawin.teapilot.protocol.request.player.interact.PlayerAttackPressRequest;
 import me.teawin.teapilot.protocol.request.player.interact.PlayerUsePressRequest;
-import me.teawin.teapilot.protocol.request.player.interact.PlayerUseRequest;
+import me.teawin.teapilot.protocol.request.player.interact.PlayerUseUnsafeRequest;
 import me.teawin.teapilot.protocol.request.player.inventory.PlayerInventoryCloseRequest;
 import me.teawin.teapilot.protocol.request.player.inventory.PlayerInventoryOpenRequest;
 import me.teawin.teapilot.protocol.request.player.inventory.PlayerInventoryRequest;
@@ -28,7 +28,7 @@ import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventory
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerEntitySeeRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookTargetRequest;
-import me.teawin.teapilot.protocol.request.player.movement.PlayerMovementRequest;
+import me.teawin.teapilot.protocol.request.player.movement.*;
 import me.teawin.teapilot.protocol.request.scoreboard.SidebarRequest;
 import me.teawin.teapilot.protocol.request.sign.SignEditRequest;
 import me.teawin.teapilot.protocol.request.sign.SignFinishRequest;
@@ -84,10 +84,16 @@ public class RequestDispatcher {
         register("player.chat", PlayerChatRequest.class);
 
         register("player.interact.use", PlayerUsePressRequest.class);
-        register("player.interact.use.manual", PlayerUseRequest.class);
+        register("player.interact.use.unsafe", PlayerUseUnsafeRequest.class);
         register("player.interact.attack", PlayerAttackPressRequest.class);
-        register("player.interact.attack.manual", PlayerAttackRequest.class);
+        register("player.interact.attack.unsafe", PlayerAttackUnsafeRequest.class);
+
         register("player.movement", PlayerMovementRequest.class);
+        register("player.movement.walk", PlayerMovementWalkRequest.class);
+        register("player.movement.jumping", PlayerMovementJumpingRequest.class);
+        register("player.movement.sneaking", PlayerMovementSneakingRequest.class);
+        register("player.movement.sprinting", PlayerMovementSprintingRequest.class);
+
         register("player.rotate", PlayerRotateRequest.class);
         register("player.look", PlayerLookRequest.class);
         register("player.look.target", PlayerLookTargetRequest.class);

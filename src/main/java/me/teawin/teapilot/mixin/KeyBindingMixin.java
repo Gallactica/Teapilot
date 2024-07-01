@@ -1,7 +1,6 @@
 package me.teawin.teapilot.mixin;
 
-import me.teawin.teapilot.proposal.Mouse;
-import me.teawin.teapilot.proposal.Movement;
+import me.teawin.teapilot.proposal.ControlOverride;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.spongepowered.asm.mixin.Final;
@@ -25,15 +24,7 @@ public class KeyBindingMixin {
 
         KeyBinding keyBinding = KEY_TO_BINDINGS.get(key);
         if (keyBinding != null) {
-            if (keyBinding.getTranslationKey().equals("key.sprint")) {
-                keyBinding.setPressed(Movement.sprinting || pressed);
-            } else if (Mouse.attackKey.keyBinding.equals(keyBinding)) {
-                keyBinding.setPressed(Mouse.attackKey.isPressed() || pressed);
-            } else if (Mouse.useKey.keyBinding.equals(keyBinding)) {
-                keyBinding.setPressed(Mouse.useKey.isPressed() || pressed);
-            } else {
-                keyBinding.setPressed(pressed);
-            }
+            keyBinding.setPressed(ControlOverride.isPressed(key) || pressed);
         }
     }
 }

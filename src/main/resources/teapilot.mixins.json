@@ -6,6 +6,7 @@
   "mixins": [
     "accessor.AbstractSignEditScreenAccessor",
     "accessor.HandledScreenAccessor",
+    "accessor.InputUtilTypeAccessor",
     "accessor.KeyBindingAccessor",
     "accessor.MinecraftClientAccessor",
     "accessor.ParticleAccessor",
@@ -21,7 +22,9 @@
     "InGameHudMixin",
     "KeyBindingMixin",
     "KeyboardInputMixin",
+    "KeyboardMixin",
     "MinecraftClientMixin",
+    "MouseMixin",
     "ParticleHandlerMixin",
     "WindowMixin"
   ],
