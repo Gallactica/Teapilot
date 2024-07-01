@@ -13,4 +13,9 @@ public class KeyboardMixin {
     private void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
         if (Teapilot.flagsManager.isEnabled("PILOT_CONTROL_ONLY")) ci.cancel();
     }
+
+    @Inject(method = "onChar", at = @At("HEAD"), cancellable = true)
+    private void onChar(long window, int codePoint, int modifiers, CallbackInfo ci) {
+        if (Teapilot.flagsManager.isEnabled("PILOT_CONTROL_ONLY")) ci.cancel();
+    }
 }
