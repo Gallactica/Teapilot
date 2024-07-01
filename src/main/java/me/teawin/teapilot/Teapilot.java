@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.AbstractSignEditScreen;
@@ -23,6 +24,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +58,8 @@ public class Teapilot implements ModInitializer {
         flagsManager.disable("PACKET_ENTITY");
         flagsManager.disable("PACKET_CONTAINER");
         flagsManager.disable("PACKET_PARTICLE");
+
+        flagsManager.disable("PILOT_CONTROL_ONLY");
 
         flagsManager.set("DEBUG_PACKET_LOGGER", isDebug);
 
@@ -229,6 +233,13 @@ public class Teapilot implements ModInitializer {
             event.addProperty("name", screen.getClass().getSimpleName());
             event.add("screen", JsonUtils.fromScreen(containerScreen));
             Teapilot.teapilotServer.broadcast(event);
+        });
+
+        Text text = Text.of("Pilot");
+
+        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+            if (Teapilot.flagsManager.isDisabled("PILOT_CONTROL_ONLY")) return;
+            drawContext.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, text, drawContext.getScaledWindowWidth() / 2, 8, -1);
         });
     }
 

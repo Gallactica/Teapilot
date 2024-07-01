@@ -21,7 +21,9 @@
     "InGameHudMixin",
     "KeyBindingMixin",
     "KeyboardInputMixin",
+    "KeyboardMixin",
     "MinecraftClientMixin",
+    "MouseMixin",
     "ParticleHandlerMixin",
     "WindowMixin"
   ],
