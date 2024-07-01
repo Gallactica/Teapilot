@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.teawin.teapilot.Teapilot;
 import me.teawin.teapilot.TeapilotEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.gui.screen.DownloadingTerrainScreen;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.gui.screen.Screen;
@@ -49,9 +50,8 @@ public class MinecraftClientMixin {
 
     @ModifyExpressionValue(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;"))
     private Screen tick1(Screen original) {
-        if (player == null) return original;
-        if (world != null && !(original instanceof DownloadingTerrainScreen))
-            return null;
+        if (player == null || original instanceof DeathScreen) return original;
+        if (world != null && !(original instanceof DownloadingTerrainScreen)) return null;
         return original;
     }
 

@@ -17,7 +17,7 @@
     "ClientPlayerEntityMixin",
     "ClientPlayerInteractionManagerMixin",
     "ClientPlayProtocolMixin",
-    "GameMenuScreenMixin",
+    "ScreenMixin",
     "HandledScreenMixin",
     "InGameHudMixin",
     "KeyBindingMixin",
