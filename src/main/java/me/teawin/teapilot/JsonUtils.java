@@ -149,7 +149,7 @@ public class JsonUtils {
     public static JsonElement fromText(Text text) {
         if (Teapilot.flagsManager.isEnabled("EXPERIMENT_TEXT_SERIALIZATION")) {
             JsonElement json = Text.Serializer.toJsonTree(text);
-            JsonPrimitive content = new JsonPrimitive(text.getString());
+            JsonPrimitive content = new JsonPrimitive(text.getString().replaceAll("§.", ""));
 
             JsonObject jsonElement = new JsonObject();
             jsonElement.add("json", json);
