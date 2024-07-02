@@ -10,10 +10,7 @@ import me.teawin.teapilot.protocol.response.container.ContainerResponse;
 import me.teawin.teapilot.protocol.type.SlotItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.ingame.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
@@ -26,19 +23,23 @@ public class ContainerRequest extends Request {
     @Override
     public @Nullable Response call() throws Exception {
         Screen screen = MinecraftClient.getInstance().currentScreen;
-        if (!(screen instanceof HandledScreen containerScreen)) {
-            return new ContainerResponse("container.empty", null);
+
+        if (!(screen instanceof HandledScreen<?> containerScreen)) {
+            return new ContainerResponse("empty", null);
         }
 
         if (screen instanceof CreativeInventoryScreen) {
-            return new ContainerResponse("container.creative", null);
+            return new ContainerResponse("creative", null);
         }
 
         HandledScreenAccessor containerScreenAccessor = (HandledScreenAccessor) screen;
 
-        String type = ((TranslatableTextContent) containerScreen.getTitle().getContent()).getKey();
+        String type = getType(screen);
 
-        Text title = containerScreenAccessor.getPlayerInventoryTitle();
+        Text title = screen.getTitle();
+        if (title == null) {
+            title = ((HandledScreenAccessor) screen).getPlayerInventoryTitle();
+        }
 
         if (screen instanceof GenericContainerScreen genericContainerScreen) {
             int chestOffset = genericContainerScreen.getScreenHandler().getRows() * 9;
@@ -58,8 +59,6 @@ public class ContainerRequest extends Request {
 
             return new ContainerPlayerInventoryResponse(type, title, craftGrid, craftResult.get(0), armor, offhand.get(0), inventory, hotbar);
         }
-
-        System.out.println(containerScreen.getClass().getSimpleName());
 
         int unknownSlotsSize = containerScreen.getScreenHandler().slots.size();
 
@@ -84,5 +83,29 @@ public class ContainerRequest extends Request {
             slots.add(new SlotItem(slotId, slotItem));
         }
         return slots;
+    }
+
+    static String getType(Screen screen) {
+        if (screen instanceof GenericContainerScreen) return "chest";
+        if (screen instanceof Generic3x3ContainerScreen) return "chest_3x3";
+        if (screen instanceof InventoryScreen) return "inventory";
+        if (screen instanceof BrewingStandScreen) return "brewing_stand";
+        if (screen instanceof CraftingScreen) return "crafting_table";
+        if (screen instanceof AnvilScreen) return "anvil";
+        if (screen instanceof BeaconScreen) return "beacon";
+        if (screen instanceof HopperScreen) return "hopper";
+        if (screen instanceof StonecutterScreen) return "stonecutter";
+        if (screen instanceof CartographyTableScreen) return "cartography_table";
+        if (screen instanceof SmithingScreen) return "smithing_table";
+        if (screen instanceof GrindstoneScreen) return "grindstone";
+        if (screen instanceof LoomScreen) return "loom";
+        if (screen instanceof FurnaceScreen) return "furnace";
+        if (screen instanceof SmokerScreen) return "smoker";
+        if (screen instanceof BlastFurnaceScreen) return "blast_furnace";
+        if (screen instanceof ShulkerBoxScreen) return "shulker";
+        if (screen instanceof MerchantScreen) return "merchant";
+        if (screen instanceof EnchantmentScreen) return "enchantment_table";
+
+        return "unknown";
     }
 }
