@@ -263,20 +263,6 @@ public class Teapilot implements ModInitializer {
         teapilotServer.broadcast(event);
     }
 
-    public static void broadcastParticle(Particle particle) {
-        if (flagsManager.isDisabled("PACKET_PARTICLE")) return;
-
-        ParticleAccessor accessor = (ParticleAccessor) particle;
-
-        JsonObject response = new JsonObject();
-
-        response.addProperty("event", TeapilotEvents.PARTICLE.toString());
-        response.add("position", JsonUtils.fromPosition(accessor.getX(), accessor.getY(), accessor.getZ()));
-        response.addProperty("name", particle.getClass().getSimpleName());
-
-        teapilotServer.broadcast(response);
-    }
-
     @NotNull
     private static TeapilotServer getTcpServer() {
 

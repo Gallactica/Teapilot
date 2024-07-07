@@ -7,12 +7,14 @@ import com.mojang.brigadier.ParseResults;
 import me.teawin.teapilot.Teapilot;
 import me.teawin.teapilot.JsonUtils;
 import me.teawin.teapilot.TeapilotEvents;
+import me.teawin.teapilot.proposal.ParticleManager;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.particle.ParticleType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -113,6 +115,26 @@ public abstract class ClientPlayProtocolMixin {
         blocks.add(block);
 
         event.add("blocks", blocks);
+        Teapilot.teapilotServer.broadcast(event);
+    }
+
+    @Inject(method = "onParticle", at = @At("HEAD"))
+    public void onParticle(ParticleS2CPacket packet, CallbackInfo ci) {
+        if (Teapilot.flagsManager.isDisabled("PACKET_PARTICLE")) return;
+
+        ParticleType<?> particleType = packet.getParameters().getType();
+        String type = ParticleManager.typeOf(particleType);
+
+        JsonObject event = TeapilotEvents.createEvent(TeapilotEvents.PARTICLE);
+
+        if (type == null) type = "UNKNOWN";
+
+        event.addProperty("type", type);
+        event.addProperty("count", packet.getCount());
+        event.addProperty("speed", packet.getSpeed());
+        event.add("position", JsonUtils.fromPosition(packet.getX(), packet.getY(), packet.getZ()));
+        event.add("offset", JsonUtils.fromPosition(packet.getOffsetX(), packet.getOffsetY(), packet.getOffsetZ()));
+
         Teapilot.teapilotServer.broadcast(event);
     }
 

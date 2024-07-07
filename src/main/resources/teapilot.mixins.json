@@ -25,7 +25,6 @@
     "KeyboardMixin",
     "MinecraftClientMixin",
     "MouseMixin",
-    "ParticleHandlerMixin",
     "WindowMixin"
   ],
   "injectors": {
