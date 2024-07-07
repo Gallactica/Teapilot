@@ -30,6 +30,7 @@ public enum TeapilotEvents {
     SIGN_CLOSE("sign_close"),
     WINDOW_FOCUS("window_focus"),
     WINDOW_BLUR("window_blur"),
+    TICK("tick"),
     FISH_HOOK("fish_hook");
 
     private final String name;

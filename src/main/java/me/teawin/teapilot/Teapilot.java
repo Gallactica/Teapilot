@@ -59,6 +59,7 @@ public class Teapilot implements ModInitializer {
         flagsManager.disable("PACKET_ENTITY");
         flagsManager.disable("PACKET_CONTAINER");
         flagsManager.disable("PACKET_PARTICLE");
+        flagsManager.disable("PACKET_TICK");
 
         flagsManager.disable("EXPERIMENT_TEXT_SERIALIZATION");
 
@@ -101,6 +102,12 @@ public class Teapilot implements ModInitializer {
             JsonObject response = new JsonObject();
             response.addProperty("event", TeapilotEvents.DISCONNECT.toString());
             teapilotServer.broadcast(response);
+        });
+
+        ClientTickEvents.END_WORLD_TICK.register(world -> {
+            if (flagsManager.isDisabled("PACKET_TICK")) return;
+            var event = TeapilotEvents.createEvent(TeapilotEvents.TICK);
+            teapilotServer.broadcast(event);
         });
 
         ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
@@ -244,7 +251,8 @@ public class Teapilot implements ModInitializer {
 
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
             if (Teapilot.flagsManager.isDisabled("PILOT_CONTROL_ONLY")) return;
-            drawContext.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, text, drawContext.getScaledWindowWidth() / 2, 8, -1);
+            drawContext.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, text,
+                    drawContext.getScaledWindowWidth() / 2, 8, -1);
         });
     }
 
