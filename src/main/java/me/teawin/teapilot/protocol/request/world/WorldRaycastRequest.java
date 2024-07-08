@@ -12,10 +12,7 @@ import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Position;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.RaycastContext;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,15 +41,7 @@ public class WorldRaycastRequest extends Request {
 
     protected static double defaultDistance = 10;
 
-    protected static class RaycastPoints {
-        public final Vec3d start;
-        public final Vec3d end;
-
-        public RaycastPoints(Vec3d start, Vec3d end) {
-            this.start = start;
-            this.end = end;
-        }
-
+    protected record RaycastPoints(Vec3d start, Vec3d end) {
         public static RaycastPoints of(Position position, float yaw, float pitch, double maxDistance) {
             Vec3d start = new Vec3d(position.getX(), position.getY(), position.getZ());
             Vec3d direction = convertYawAndPitchToVec3d(yaw, pitch);
@@ -61,7 +50,8 @@ public class WorldRaycastRequest extends Request {
         }
 
         public static RaycastPoints of(Position start, Position end) {
-            return new RaycastPoints(new Vec3d(start.getX(), start.getY(), start.getZ()), new Vec3d(end.getX(), end.getY(), end.getZ()));
+            return new RaycastPoints(new Vec3d(start.getX(), start.getY(), start.getZ()),
+                    new Vec3d(end.getX(), end.getY(), end.getZ()));
         }
     }
 
@@ -70,11 +60,12 @@ public class WorldRaycastRequest extends Request {
         if (player != 0) {
             ClientPlayerEntity clientPlayer = MinecraftClient.getInstance().player;
             assert clientPlayer != null;
-
-            if ((player & FLAG_PLAYER_EYE_POS) == FLAG_PLAYER_EYE_POS) position = clientPlayer.getEyePos();
-
-            if ((player & FLAG_PLAYER_FOOT_POS) == FLAG_PLAYER_FOOT_POS) position = clientPlayer.getEyePos();
-
+            if ((player & FLAG_PLAYER_EYE_POS) == FLAG_PLAYER_EYE_POS) {
+                position = clientPlayer.getEyePos();
+            }
+            if ((player & FLAG_PLAYER_FOOT_POS) == FLAG_PLAYER_FOOT_POS) {
+                position = clientPlayer.getPos();
+            }
             if ((player & FLAG_PLAYER_LOOK) == FLAG_PLAYER_LOOK) {
                 yaw = clientPlayer.getYaw();
                 pitch = clientPlayer.getPitch();
@@ -137,28 +128,31 @@ public class WorldRaycastRequest extends Request {
     protected HitResult raycast() {
         RaycastPoints points = getPoints();
 
-        BlockHitResult block = raycastBlock(points);
-        EntityHitResult entity = raycastEntity(points);
+        BlockHitResult blockHitResult = raycastBlock(points);
+        EntityHitResult entityHitResult = raycastEntity(points);
 
-        if (block != null && entity != null) {
+        if (blockHitResult != null && entityHitResult != null) {
 
-            double entityDst = entity.getEntity().getPos().squaredDistanceTo(points.start) - entity.squaredDistanceTo(entity.getEntity());
-            double blockDst = block.getPos().squaredDistanceTo(points.start);
+            double entityDst = entityHitResult.getEntity().getBlockPos().toCenterPos()
+                    .squaredDistanceTo(points.start);
+
+            double blockDst = blockHitResult.getBlockPos().toCenterPos()
+                    .squaredDistanceTo(points.start);
 
             boolean isEntity = entityDst <= blockDst;
 
             if (isEntity) {
-                return entity;
+                return entityHitResult;
             } else {
-                return block;
+                return blockHitResult;
             }
         }
 
-        if (block != null) {
-            return block;
+        if (blockHitResult != null) {
+            return blockHitResult;
         }
 
-        return entity;
+        return entityHitResult;
     }
 
     protected BlockHitResult raycastBlock(RaycastPoints points) {
@@ -167,7 +161,9 @@ public class WorldRaycastRequest extends Request {
         assert MinecraftClient.getInstance().world != null;
         assert MinecraftClient.getInstance().player != null;
 
-        RaycastContext raycastContext = new RaycastContext(points.start, points.end, RaycastContext.ShapeType.OUTLINE, includeFluids ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE, MinecraftClient.getInstance().player);
+        RaycastContext raycastContext = new RaycastContext(points.start, points.end, RaycastContext.ShapeType.OUTLINE,
+                includeFluids ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE,
+                MinecraftClient.getInstance().player);
 
         return MinecraftClient.getInstance().world.raycast(raycastContext);
     }
@@ -178,6 +174,7 @@ public class WorldRaycastRequest extends Request {
 
         double dst = points.start.squaredDistanceTo(points.end);
 
-        return ProjectileUtil.raycast(MinecraftClient.getInstance().player, points.start, points.end, new Box(points.start, points.end), Entity::isAlive, dst);
+        return ProjectileUtil.raycast(MinecraftClient.getInstance().player, points.start, points.end,
+                new Box(points.start, points.end), Entity::isAlive, dst);
     }
 }
