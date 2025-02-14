@@ -5,7 +5,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import me.teawin.teapilot.mixin.accessor.AbstractSignEditScreenAccessor;
-import me.teawin.teapilot.mixin.accessor.ParticleAccessor;
+import me.teawin.teapilot.proposal.ControlLook;
+import me.teawin.teapilot.visual.VisualText;
 import me.teawin.teapilot.protocol.TeapilotServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
@@ -20,11 +21,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.AbstractSignEditScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +33,14 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 
 public class Teapilot implements ModInitializer {
-    public static FlagsManager flagsManager = new FlagsManager();
-    public static RequestDispatcher manager = new RequestDispatcher();
+    public static FlagsManager flags = new FlagsManager();
+    public static TeapilotDispatcher dispatcher = new TeapilotDispatcher();
     public static TeapilotServer teapilotServer = getTcpServer();
     public static final Logger LOGGER = LoggerFactory.getLogger("Teapilot");
 
-    public static boolean isDebug = ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
+    public static boolean isDebug = ManagementFactory.getRuntimeMXBean()
+            .getInputArguments()
+            .toString()
             .contains("jdwp");
 
     @Override
@@ -46,29 +48,34 @@ public class Teapilot implements ModInitializer {
 
         LOGGER.info("Running with packet logging " + (isDebug ? "enabled" : "disabled"));
 
-        flagsManager.disable("INTERCEPT_CHAT");
-        flagsManager.disable("INTERCEPT_SEND_CHAT_MESSAGE");
-        flagsManager.disable("INTERCEPT_SEND_CHAT_COMMAND");
-        flagsManager.disable("INTERCEPT_ITEM_TOOLTIP");
+        flags.disable("INTERCEPT_CHAT");
+        flags.disable("INTERCEPT_SEND_CHAT_MESSAGE");
+        flags.disable("INTERCEPT_SEND_CHAT_COMMAND");
+        flags.disable("INTERCEPT_ITEM_TOOLTIP");
 
-        flagsManager.disable("PACKET_OVERLAY");
-        flagsManager.disable("PACKET_BLOCK_UPDATE");
-        flagsManager.disable("PACKET_CHAT");
-        flagsManager.disable("PACKET_GPS");
-        flagsManager.disable("PACKET_SOUND");
-        flagsManager.disable("PACKET_ENTITY");
-        flagsManager.disable("PACKET_CONTAINER");
-        flagsManager.disable("PACKET_PARTICLE");
-        flagsManager.disable("PACKET_TICK");
+        flags.disable("PACKET_OVERLAY");
+        flags.disable("PACKET_BLOCK_UPDATE");
+        flags.disable("PACKET_CHAT");
+        flags.disable("PACKET_GPS");
+        flags.disable("PACKET_SOUND");
+        flags.disable("PACKET_ENTITY");
+        flags.disable("PACKET_CONTAINER");
+        flags.disable("PACKET_PARTICLE");
+        flags.disable("PACKET_TICK");
+        flags.disable("PACKET_WINDOW");
 
-        flagsManager.disable("EXPERIMENT_TEXT_SERIALIZATION");
+        flags.disable("EXPERIMENT_TEXT_SERIALIZATION");
+        flags.disable("EXPERIMENTAL_ENTITY_NBT");
+        flags.disable("EXTENDED_TEXT_DISPLAY_ENTITY");
+        flags.disable("EXTENDED_VEHICLE_ENTITY");
 
-        flagsManager.disable("PILOT_CONTROL_ONLY");
+        flags.disable("PILOT_CONTROL_ONLY");
 
-        flagsManager.set("DEBUG_PACKET_LOGGER", isDebug);
+        flags.set("DEBUG_PACKET_LOGGER", isDebug);
+        flags.set("DEBUG_LOGGER", isDebug);
 
         ClientSendMessageEvents.ALLOW_CHAT.register(message -> {
-            if (flagsManager.isDisabled("INTERCEPT_SEND_CHAT_MESSAGE")) return true;
+            if (flags.isDisabled("INTERCEPT_SEND_CHAT_MESSAGE")) return true;
 
             JsonObject response = new JsonObject();
             response.addProperty("event", TeapilotEvents.SEND_MESSAGE.toString());
@@ -79,7 +86,7 @@ public class Teapilot implements ModInitializer {
         });
 
         ClientSendMessageEvents.ALLOW_COMMAND.register(message -> {
-            if (flagsManager.isDisabled("INTERCEPT_SEND_CHAT_COMMAND")) return true;
+            if (flags.isDisabled("INTERCEPT_SEND_CHAT_COMMAND")) return true;
 
             JsonObject response = new JsonObject();
             response.addProperty("event", TeapilotEvents.SEND_COMMAND.toString());
@@ -92,8 +99,9 @@ public class Teapilot implements ModInitializer {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             JsonObject response = new JsonObject();
             response.addProperty("event", TeapilotEvents.CONNECT.toString());
-            if (client.getNetworkHandler() != null && client.getNetworkHandler().getServerInfo() != null)
-                response.add("server", JsonUtils.fromServerInfo(client.getNetworkHandler().getServerInfo()));
+            if (client.getNetworkHandler() != null && client.getNetworkHandler()
+                    .getServerInfo() != null) response.add("server", JsonUtils.fromServerInfo(client.getNetworkHandler()
+                    .getServerInfo()));
             else response.add("server", JsonNull.INSTANCE);
             teapilotServer.broadcast(response);
         });
@@ -105,15 +113,22 @@ public class Teapilot implements ModInitializer {
         });
 
         ClientTickEvents.END_WORLD_TICK.register(world -> {
-            if (flagsManager.isDisabled("PACKET_TICK")) return;
+            if (flags.isDisabled("PACKET_TICK")) return;
             var event = TeapilotEvents.createEvent(TeapilotEvents.TICK);
             teapilotServer.broadcast(event);
         });
 
+        ClientTickEvents.END_WORLD_TICK.register(world -> {
+            ControlLook.tick();
+        });
+
+        HudRenderCallback.EVENT.register(ControlLook::render);
+
         ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
             if (entity instanceof FishingBobberEntity fishingBobberEntity) {
                 if (fishingBobberEntity.getPlayerOwner() != null) {
-                    if (fishingBobberEntity.getPlayerOwner().equals(MinecraftClient.getInstance().player)) {
+                    if (fishingBobberEntity.getPlayerOwner()
+                            .equals(MinecraftClient.getInstance().player)) {
                         var event = TeapilotEvents.createEvent(TeapilotEvents.FISH_HOOK);
                         event.add("hook", JsonUtils.fromEntity(entity));
                         teapilotServer.broadcast(event);
@@ -121,7 +136,7 @@ public class Teapilot implements ModInitializer {
                 }
             }
 
-            if (flagsManager.isDisabled("PACKET_ENTITY")) return;
+            if (flags.isDisabled("PACKET_ENTITY")) return;
 
             JsonObject event = TeapilotEvents.createEvent(TeapilotEvents.ENTITY_SPAWN);
             event.add("entity", JsonUtils.fromEntity(entity));
@@ -130,7 +145,7 @@ public class Teapilot implements ModInitializer {
         });
 
         ClientEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
-            if (flagsManager.isDisabled("PACKET_ENTITY")) return;
+            if (flags.isDisabled("PACKET_ENTITY")) return;
 
             JsonObject event = TeapilotEvents.createEvent(TeapilotEvents.ENTITY_DESPAWN);
             event.add("entity", JsonUtils.fromEntity(entity));
@@ -146,11 +161,11 @@ public class Teapilot implements ModInitializer {
             jsonObject.addProperty("event",
                     overlay ? TeapilotEvents.OVERLAY.toString() : TeapilotEvents.CHAT.toString());
             jsonObject.addProperty("text", message.getString());
-            jsonObject.add("message", Text.Serializer.toJsonTree(message));
+            jsonObject.add("message", JsonUtils.fromText(message));
 
-            if (flagsManager.get("PACKET_CHAT") && !overlay) {
+            if (flags.isEnabled("PACKET_CHAT") && !overlay) {
                 teapilotServer.broadcast(jsonObject);
-            } else if (flagsManager.get("PACKET_OVERLAY") && overlay) {
+            } else if (flags.isEnabled("PACKET_OVERLAY") && overlay) {
                 teapilotServer.broadcast(jsonObject);
             }
 
@@ -158,11 +173,11 @@ public class Teapilot implements ModInitializer {
                 return true;
             }
 
-            return flagsManager.isDisabled("INTERCEPT_CHAT");
+            return flags.isDisabled("INTERCEPT_CHAT");
         });
 
         ClientTickEvents.END_WORLD_TICK.register(client -> {
-            if (flagsManager.isDisabled("PACKET_GPS")) return;
+            if (flags.isDisabled("PACKET_GPS")) return;
 
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
 
@@ -178,7 +193,7 @@ public class Teapilot implements ModInitializer {
             velocityObject.addProperty("sideways", player.sidewaysSpeed);
             velocityObject.addProperty("forward", player.forwardSpeed);
             velocityObject.addProperty("upward", player.upwardSpeed);
-            velocityObject.addProperty("horizontal", player.horizontalSpeed);
+            velocityObject.addProperty("speed", player.speed);
 
             jsonObject.addProperty("event", TeapilotEvents.POSITION.toString());
             jsonObject.addProperty("eye", player.getEyeY());
@@ -196,8 +211,10 @@ public class Teapilot implements ModInitializer {
             jsonObject.addProperty("on_ground", player.isOnGround());
 
             JsonObject constantObject = new JsonObject();
-            constantObject.addProperty("fly_speed", player.getAbilities().getFlySpeed());
-            constantObject.addProperty("walk_speed", player.getAbilities().getWalkSpeed());
+            constantObject.addProperty("fly_speed", player.getAbilities()
+                    .getFlySpeed());
+            constantObject.addProperty("walk_speed", player.getAbilities()
+                    .getWalkSpeed());
 
             jsonObject.add("consts", constantObject);
 
@@ -205,13 +222,14 @@ public class Teapilot implements ModInitializer {
         });
 
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> client.getSoundManager()
-                .registerListener((sound, soundSet) -> {
-                    if (flagsManager.isDisabled("PACKET_SOUND")) return;
+                .registerListener((sound, soundSet, range) -> {
+                    if (flags.isDisabled("PACKET_SOUND")) return;
 
                     JsonObject jsonObject = new JsonObject();
 
                     jsonObject.addProperty("event", TeapilotEvents.SOUND.toString());
-                    jsonObject.addProperty("id", sound.getId().toString());
+                    jsonObject.addProperty("id", sound.getId()
+                            .toString());
                     jsonObject.addProperty("volume", sound.getVolume());
                     jsonObject.addProperty("pitch", sound.getPitch());
                     jsonObject.add("position", JsonUtils.fromPosition(sound.getX(), sound.getY(), sound.getZ()));
@@ -236,28 +254,50 @@ public class Teapilot implements ModInitializer {
         });
 
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            if (flagsManager.isDisabled("PACKET_CONTAINER")) return;
+            if (flags.isDisabled("PACKET_CONTAINER")) return;
 
             if (!(screen instanceof HandledScreen<?> containerScreen)) {
                 return;
             }
             var event = TeapilotEvents.createEvent(TeapilotEvents.CONTAINER_OPEN);
-            event.addProperty("name", screen.getClass().getSimpleName());
+            event.addProperty("name", screen.getClass()
+                    .getSimpleName());
             event.add("screen", JsonUtils.fromScreen(containerScreen));
             Teapilot.teapilotServer.broadcast(event);
         });
 
         Text text = Text.of("Pilot");
-
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
-            if (Teapilot.flagsManager.isDisabled("PILOT_CONTROL_ONLY")) return;
+            if (Teapilot.flags.isDisabled("PILOT_CONTROL_ONLY")) return;
             drawContext.drawCenteredTextWithShadow(MinecraftClient.getInstance().textRenderer, text,
                     drawContext.getScaledWindowWidth() / 2, 8, -1);
+        });
+
+        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+            int y = VisualText.y;
+
+            for (OrderedText orderedText : MinecraftClient.getInstance().textRenderer.wrapLines(VisualText.text,
+                    MinecraftClient.getInstance()
+                            .getWindow()
+                            .getScaledWidth())) {
+
+                drawContext.drawText(MinecraftClient.getInstance().textRenderer, orderedText, VisualText.x, y, -1,
+                        true);
+
+                y += 9;
+            }
+        });
+
+        TeapilotFunctionKeys.register();
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            for (int i = 0; i < TeapilotFunctionKeys.functionKeyBindings.length; i++) {
+                if (TeapilotFunctionKeys.functionKeyBindings[i].wasPressed()) TeapilotFunctionKeys.sendKeyPress(i + 1);
+            }
         });
     }
 
     public static void broadcastEntityUpdate(Entity entity) {
-        if (flagsManager.isDisabled("PACKET_ENTITY")) return;
+        if (flags.isDisabled("PACKET_ENTITY")) return;
         JsonObject event = TeapilotEvents.createEvent(TeapilotEvents.ENTITY_UPDATE);
         event.add("entity", JsonUtils.fromEntity(entity));
         teapilotServer.broadcast(event);
@@ -268,7 +308,7 @@ public class Teapilot implements ModInitializer {
 
         TeapilotServer server;
         try {
-            server = new TeapilotServer(manager);
+            server = new TeapilotServer(dispatcher);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

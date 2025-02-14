@@ -7,16 +7,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.util.math.Position;
-import net.minecraft.util.math.PositionImpl;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class ParticleRequest extends Request {
-    private Position position;
-    private Position velocity;
+    private Vec3d position;
+    private Vec3d velocity;
     private String type;
+    private Boolean relative;
 
-    private static final Position ZERO_VELOCITY = new PositionImpl(0, 0, 0);
+    private static final Vec3d ZERO_VELOCITY = new Vec3d(0, 0, 0);
 
     @Override
     public @Nullable Response call() throws Exception {
@@ -28,10 +29,16 @@ public class ParticleRequest extends Request {
 
         if (velocity == null) velocity = ZERO_VELOCITY;
 
-        MinecraftClient.getInstance().execute(() -> {
-            world.addParticle((ParticleEffect) particleType, position.getX(), position.getY(), position.getZ(),
-                    velocity.getX(), velocity.getY(), velocity.getZ());
-        });
+        MinecraftClient.getInstance()
+                .execute(() -> {
+                    if (relative) {
+                        assert MinecraftClient.getInstance().player != null;
+                        position = position.add(MinecraftClient.getInstance().player.getPos());
+                    }
+
+                    world.addParticle((ParticleEffect) particleType, position.getX(), position.getY(), position.getZ(),
+                            velocity.getX(), velocity.getY(), velocity.getZ());
+                });
 
         return null;
     }

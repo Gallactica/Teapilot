@@ -24,7 +24,9 @@ public class ControlOverride {
 
     public static List<String> getKeys() {
         List<String> result = new ArrayList<>();
-        keys.keys().asIterator().forEachRemaining(key -> result.add(key.getTranslationKey()));
+        keys.keys()
+                .asIterator()
+                .forEachRemaining(key -> result.add(key.getTranslationKey()));
         return result;
     }
 

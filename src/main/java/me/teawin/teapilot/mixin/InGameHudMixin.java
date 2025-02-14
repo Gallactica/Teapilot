@@ -1,27 +1,33 @@
 package me.teawin.teapilot.mixin;
 
-import com.mojang.datafixers.util.Pair;
 import me.teawin.teapilot.proposal.ScoreboardStore;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.ScoreboardEntry;
 import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Comparator;
 
 @Mixin(InGameHud.class)
 public class InGameHudMixin {
-    @Inject(method = "renderScoreboardSidebar", at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    public void renderScoreboardSidebar(DrawContext context, ScoreboardObjective objective, CallbackInfo ci, Scoreboard scoreboard, Collection collection, List list, List<Pair<ScoreboardPlayerScore, Text>> list2, Text text, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r) {
-        ScoreboardStore.sidebarTexts = list2;
-        ScoreboardStore.sidebarTitle = text;
+
+    @Inject(method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/scoreboard/ScoreboardObjective;)V", at = @At("HEAD"))
+    public void renderScoreboardSidebar(DrawContext drawContext, ScoreboardObjective objective, CallbackInfo ci) {
+        ScoreboardStore.sidebarTitle = objective.getDisplayName();
+
+        Scoreboard scoreboard = objective.getScoreboard();
+        ScoreboardStore.scoreboardEntries = scoreboard.getScoreboardEntries(objective)
+                .stream()
+                .filter(score -> !score.hidden())
+                .sorted(Comparator.comparing(ScoreboardEntry::value)
+                        .reversed()
+                        .thenComparing(ScoreboardEntry::owner, String.CASE_INSENSITIVE_ORDER))
+                .limit(15L)
+                .toList();
     }
 }

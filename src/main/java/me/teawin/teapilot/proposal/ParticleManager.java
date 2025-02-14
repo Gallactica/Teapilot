@@ -13,7 +13,6 @@ public class ParticleManager {
     }
 
     static {
-        register(ParticleTypes.AMBIENT_ENTITY_EFFECT, "AMBIENT_ENTITY_EFFECT");
         register(ParticleTypes.ANGRY_VILLAGER, "ANGRY_VILLAGER");
         register(ParticleTypes.BLOCK, "BLOCK");
         register(ParticleTypes.BLOCK_MARKER, "BLOCK_MARKER");
@@ -37,11 +36,16 @@ public class ParticleManager {
         register(ParticleTypes.ENTITY_EFFECT, "ENTITY_EFFECT");
         register(ParticleTypes.EXPLOSION_EMITTER, "EXPLOSION_EMITTER");
         register(ParticleTypes.EXPLOSION, "EXPLOSION");
+        register(ParticleTypes.GUST, "GUST");
+        register(ParticleTypes.SMALL_GUST, "SMALL_GUST");
+        register(ParticleTypes.GUST_EMITTER_LARGE, "GUST_EMITTER_LARGE");
+        register(ParticleTypes.GUST_EMITTER_SMALL, "GUST_EMITTER_SMALL");
         register(ParticleTypes.SONIC_BOOM, "SONIC_BOOM");
         register(ParticleTypes.FALLING_DUST, "FALLING_DUST");
         register(ParticleTypes.FIREWORK, "FIREWORK");
         register(ParticleTypes.FISHING, "FISHING");
         register(ParticleTypes.FLAME, "FLAME");
+        register(ParticleTypes.INFESTED, "INFESTED");
         register(ParticleTypes.CHERRY_LEAVES, "CHERRY_LEAVES");
         register(ParticleTypes.SCULK_SOUL, "SCULK_SOUL");
         register(ParticleTypes.SCULK_CHARGE, "SCULK_CHARGE");
@@ -55,7 +59,9 @@ public class ParticleManager {
         register(ParticleTypes.INSTANT_EFFECT, "INSTANT_EFFECT");
         register(ParticleTypes.ITEM, "ITEM");
         register(ParticleTypes.VIBRATION, "VIBRATION");
+        register(ParticleTypes.TRAIL, "TRAIL");
         register(ParticleTypes.ITEM_SLIME, "ITEM_SLIME");
+        register(ParticleTypes.ITEM_COBWEB, "ITEM_COBWEB");
         register(ParticleTypes.ITEM_SNOWBALL, "ITEM_SNOWBALL");
         register(ParticleTypes.LARGE_SMOKE, "LARGE_SMOKE");
         register(ParticleTypes.LAVA, "LAVA");
@@ -65,6 +71,7 @@ public class ParticleManager {
         register(ParticleTypes.PORTAL, "PORTAL");
         register(ParticleTypes.RAIN, "RAIN");
         register(ParticleTypes.SMOKE, "SMOKE");
+        register(ParticleTypes.WHITE_SMOKE, "WHITE_SMOKE");
         register(ParticleTypes.SNEEZE, "SNEEZE");
         register(ParticleTypes.SPIT, "SPIT");
         register(ParticleTypes.SQUID_INK, "SQUID_INK");
@@ -108,6 +115,15 @@ public class ParticleManager {
         register(ParticleTypes.SCRAPE, "SCRAPE");
         register(ParticleTypes.SHRIEK, "SHRIEK");
         register(ParticleTypes.EGG_CRACK, "EGG_CRACK");
+        register(ParticleTypes.DUST_PLUME, "DUST_PLUME");
+        register(ParticleTypes.TRIAL_SPAWNER_DETECTION, "TRIAL_SPAWNER_DETECTION");
+        register(ParticleTypes.TRIAL_SPAWNER_DETECTION_OMINOUS, "TRIAL_SPAWNER_DETECTION_OMINOUS");
+        register(ParticleTypes.VAULT_CONNECTION, "VAULT_CONNECTION");
+        register(ParticleTypes.DUST_PILLAR, "DUST_PILLAR");
+        register(ParticleTypes.OMINOUS_SPAWNING, "OMINOUS_SPAWNING");
+        register(ParticleTypes.RAID_OMEN, "RAID_OMEN");
+        register(ParticleTypes.TRIAL_OMEN, "TRIAL_OMEN");
+        register(ParticleTypes.BLOCK_CRUMBLE, "BLOCK_CRUMBLE");
     }
 
     public static String typeOf(ParticleType<?> type) {
@@ -115,6 +131,7 @@ public class ParticleManager {
     }
 
     public static ParticleType<?> typeOf(String type) {
-        return PARTICLE_TYPE_MAP.inverse().get(type);
+        return PARTICLE_TYPE_MAP.inverse()
+                .get(type);
     }
 }

@@ -6,32 +6,43 @@ import com.mojang.serialization.JsonOps;
 import me.teawin.teapilot.mixin.accessor.HandledScreenAccessor;
 import me.teawin.teapilot.protocol.type.SlotItem;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.ServerInfo;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Ownable;
+import net.minecraft.entity.*;
+import net.minecraft.entity.decoration.DisplayEntity;
+import net.minecraft.entity.decoration.InteractionEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
+import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Position;
-import net.minecraft.util.math.PositionImpl;
+import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static me.teawin.teapilot.protocol.GsonConfigurator.gson;
+
 public class JsonUtils {
     public static JsonElement fromBlockState(BlockState blockState) {
         JsonObject blockObject = new JsonObject();
-        blockState.getRegistryEntry().getKey()
-                .ifPresent(blockRegistryKey -> blockObject.addProperty("id", blockRegistryKey.getValue().toString()));
+        blockState.getRegistryEntry()
+                .getKey()
+                .ifPresent(blockRegistryKey -> blockObject.addProperty("id", blockRegistryKey.getValue()
+                        .toString()));
         blockObject.add("properties", serializeState(blockState));
         return blockObject;
     }
@@ -70,7 +81,8 @@ public class JsonUtils {
 
         if (containerScreen instanceof GenericContainerScreen genericContainerScreen) {
             screenJson.add("type", new JsonPrimitive("chest"));
-            screenJson.add("rows", new JsonPrimitive(genericContainerScreen.getScreenHandler().getRows()));
+            screenJson.add("rows", new JsonPrimitive(genericContainerScreen.getScreenHandler()
+                    .getRows()));
         }
 
         if (containerScreen instanceof InventoryScreen) {
@@ -105,51 +117,25 @@ public class JsonUtils {
         return fromPosition(position.getX(), position.getY(), position.getZ());
     }
 
-    public static JsonElement fromItemStack(ItemStack itemStack) {
-        JsonObject jsonObject = new JsonObject();
-
-        itemStack.getRegistryEntry().getKey()
-                .ifPresent(itemRegistryKey -> jsonObject.addProperty("id", itemRegistryKey.getValue().toString()));
-
-        if (itemStack.getCount() > 0 && !itemStack.getItem().equals(Items.AIR)) {
-            jsonObject.addProperty("count", itemStack.getCount());
+    public static @Nullable JsonElement fromItemStack(ItemStack itemStack) {
+        if (itemStack.getItem()
+                .equals(Items.AIR)) {
+            return null;
         }
 
-        DataResult<JsonElement> result = ItemStack.CODEC.encodeStart(JsonOps.INSTANCE, itemStack);
-        JsonElement tagElement = result.getOrThrow(true, s -> {
-        }).getAsJsonObject().get("tag");
-
-        if (tagElement != null) {
-            jsonObject.add("tag", tagElement);
-
-            if (tagElement.getAsJsonObject().has("display")) {
-                JsonObject display = tagElement.getAsJsonObject().getAsJsonObject("display");
-                tagElement.getAsJsonObject().remove("display");
-
-                if (display.has("Name")) {
-                    var nameString = display.getAsJsonPrimitive("Name");
-                    jsonObject.add("name", fromText(toText(JsonParser.parseString(nameString.getAsString()))));
-                }
-                if (display.has("Lore")) {
-                    var loreArray = display.getAsJsonArray("Lore");
-                    if (!loreArray.isEmpty()) {
-                        var lore = new JsonArray();
-                        for (JsonElement jsonElement : loreArray) {
-                            lore.add(fromText(toText(JsonParser.parseString(jsonElement.getAsString()))));
-                        }
-                        jsonObject.add("lore", lore);
-                    }
-                }
-            }
-        }
-
-        return jsonObject;
+        assert MinecraftClient.getInstance().world != null;
+        DataResult<JsonElement> result = ItemStack.CODEC.encodeStart(
+                MinecraftClient.getInstance().world.getRegistryManager()
+                        .getOps(JsonOps.INSTANCE), itemStack);
+        return result.getPartialOrThrow();
     }
 
     public static JsonElement fromText(Text text) {
-        if (Teapilot.flagsManager.isEnabled("EXPERIMENT_TEXT_SERIALIZATION")) {
-            JsonElement json = Text.Serializer.toJsonTree(text);
-            JsonPrimitive content = new JsonPrimitive(text.getString().replaceAll("§.", ""));
+        if (Teapilot.flags.isEnabled("EXPERIMENT_TEXT_SERIALIZATION")) {
+            JsonElement json = TextCodecs.CODEC.encodeStart(JsonOps.INSTANCE, text)
+                    .getOrThrow();
+            JsonPrimitive content = new JsonPrimitive(text.getString()
+                    .replaceAll("§.", ""));
 
             JsonObject jsonElement = new JsonObject();
             jsonElement.add("json", json);
@@ -157,7 +143,9 @@ public class JsonUtils {
 
             return jsonElement;
         }
-        return Text.Serializer.toJsonTree(text);
+
+        return TextCodecs.CODEC.encodeStart(JsonOps.INSTANCE, text)
+                .getOrThrow();
     }
 
     public static JsonElement fromTextList(List<Text> textList) {
@@ -173,7 +161,7 @@ public class JsonUtils {
     public static List<Text> toTextList(JsonArray jsonArray) {
         List<Text> textList = new ArrayList<>();
         for (JsonElement jsonElement : jsonArray) {
-            textList.add(Text.Serializer.fromJson(jsonElement));
+            textList.add(toText(jsonElement));
         }
         return textList;
     }
@@ -183,7 +171,7 @@ public class JsonUtils {
 
         jsonObject.addProperty("address", info.address);
         jsonObject.addProperty("ping", info.ping);
-        jsonObject.addProperty("online", info.online);
+        jsonObject.addProperty("online", !info.isLocal());
 
         return jsonObject;
     }
@@ -191,81 +179,185 @@ public class JsonUtils {
     public static JsonElement fromEntity(Entity entity) {
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("type", entity.getType().getRegistryEntry().getKey().get().getValue().toString());
+        jsonObject.addProperty("type", Registries.ENTITY_TYPE.getId(entity.getType())
+                .toString());
         jsonObject.addProperty("id", entity.getId());
-        jsonObject.addProperty("uuid", entity.getUuid().toString());
+        jsonObject.addProperty("uuid", entity.getUuid()
+                .toString());
         jsonObject.add("pos", fromPosition(entity.getPos()));
-
-//        jsonObject.addProperty("invisible", entity.isInvisible());
         jsonObject.add("vel", fromPosition(entity.getVelocity()));
+
+        JsonObject lookObject = new JsonObject();
+
+        lookObject.addProperty("yaw", entity.getYaw());
+        lookObject.addProperty("head_yaw", entity.getHeadYaw());
+        lookObject.addProperty("pitch", entity.getPitch());
+
+        jsonObject.add("look", lookObject);
+
+        JsonObject boundingBoxObject = new JsonObject();
+        boundingBoxObject.addProperty("width", entity.getWidth());
+        boundingBoxObject.addProperty("height", entity.getHeight());
+
+        jsonObject.add("bounding_box", boundingBoxObject);
 
         if (entity.hasCustomName()) {
             jsonObject.add("customName", JsonUtils.fromText(entity.getCustomName()));
         }
 
+        jsonObject.addProperty("glowing", entity.isGlowing());
+        jsonObject.addProperty("invisible", entity.isInvisible());
+
         if (entity instanceof LivingEntity livingEntity) {
             JsonArray items = new JsonArray();
             AtomicBoolean hasItem = new AtomicBoolean(false);
-            livingEntity.getArmorItems().forEach(itemStack -> {
-                items.add(JsonUtils.fromItemStack(itemStack));
-                if (!itemStack.getItem().equals(Items.AIR)) hasItem.set(true);
-            });
+            livingEntity.getArmorItems()
+                    .forEach(itemStack -> {
+                        items.add(JsonUtils.fromItemStack(itemStack));
+                        if (!itemStack.getItem()
+                                .equals(Items.AIR)) hasItem.set(true);
+                    });
             if (hasItem.get()) jsonObject.add("armor", items);
-            if (!livingEntity.getMainHandStack().getItem().equals(Items.AIR))
+            if (!livingEntity.getMainHandStack()
+                    .getItem()
+                    .equals(Items.AIR))
                 jsonObject.add("main_hand", JsonUtils.fromItemStack(livingEntity.getMainHandStack()));
-            if (!livingEntity.getOffHandStack().getItem().equals(Items.AIR))
+            if (!livingEntity.getOffHandStack()
+                    .getItem()
+                    .equals(Items.AIR))
                 jsonObject.add("off_hand", JsonUtils.fromItemStack(livingEntity.getOffHandStack()));
         }
 
-        if (entity instanceof ItemEntity itemEntity) {
+        if (entity instanceof InteractionEntity interactionEntity) {
+            jsonObject.add("width", new JsonPrimitive(interactionEntity.getInteractionWidth()));
+            jsonObject.add("height", new JsonPrimitive(interactionEntity.getInteractionHeight()));
+        }
+
+        if (entity instanceof ItemEntity itemEntity)
             jsonObject.add("item", JsonUtils.fromItemStack(itemEntity.getStack()));
+
+        if (entity instanceof DisplayEntity.ItemDisplayEntity itemDisplayEntity) {
+            jsonObject.add("item", JsonUtils.fromItemStack(itemDisplayEntity.getItemStack()));
+            jsonObject.addProperty("mode", itemDisplayEntity.getTransformationMode()
+                    .asString());
+        }
+
+        if (entity instanceof DisplayEntity.BlockDisplayEntity blockDisplayEntity) {
+            jsonObject.add("block", JsonUtils.fromBlockState(blockDisplayEntity.getBlockState()));
+        }
+
+        if (entity instanceof DisplayEntity.TextDisplayEntity textDisplayEntity) {
+            jsonObject.add("text", JsonUtils.fromText(textDisplayEntity.getText()));
+            if (Teapilot.flags.isEnabled("EXTENDED_TEXT_DISPLAY_ENTITY")) {
+                jsonObject.addProperty("billboard", textDisplayEntity.getBillboardMode()
+                        .asString());
+                jsonObject.addProperty("lineWidth", textDisplayEntity.getLineWidth());
+                jsonObject.addProperty("background", textDisplayEntity.getBackground());
+                jsonObject.addProperty("brightness", textDisplayEntity.getBrightness());
+            }
+        }
+
+        if (entity instanceof DisplayEntity displayEntity) {
+            AffineTransformation transformation = DisplayEntity.getTransformation(displayEntity.getDataTracker());
+            jsonObject.add("scale", fromVector(transformation.getScale()));
+            jsonObject.add("translation", fromVector(transformation.getTranslation()));
+            jsonObject.add("left_rotation", fromQuaternion(transformation.getLeftRotation()));
+            jsonObject.add("right_rotation", fromQuaternion(transformation.getRightRotation()));
+        }
+
+        if (entity instanceof AreaEffectCloudEntity areaEffectCloudEntity) {
+            jsonObject.addProperty("effect", areaEffectCloudEntity.getParticleType()
+                    .getType()
+                    .toString());
+            jsonObject.addProperty("radius", areaEffectCloudEntity.getRadius());
+            jsonObject.addProperty("age", areaEffectCloudEntity.age);
         }
 
         if (entity instanceof Ownable ownable) {
-            if (ownable.getOwner() != null) jsonObject.addProperty("owner", ownable.getOwner().getUuid().toString());
+            if (ownable.getOwner() != null) jsonObject.addProperty("owner", ownable.getOwner()
+                    .getUuid()
+                    .toString());
         }
 
         Entity vehicle = entity.getVehicle();
         if (vehicle != null) {
-            jsonObject.addProperty("vehicle", vehicle.getUuid().toString());
+            jsonObject.addProperty("vehicle", vehicle.getUuid()
+                    .toString());
+            if (Teapilot.flags.isEnabled("EXTENDED_VEHICLE_ENTITY"))
+                jsonObject.add("vehicleEntity", JsonUtils.fromEntity(vehicle));
         }
 
         if (entity.hasPassengers()) {
             List<Entity> passengerList = entity.getPassengerList();
             JsonArray jsonArray = new JsonArray();
             for (Entity passenger : passengerList) {
-                jsonArray.add(passenger.getUuid().toString());
+                jsonArray.add(passenger.getUuid()
+                        .toString());
             }
             jsonObject.add("passengers", jsonArray);
+        }
+
+        if (Teapilot.flags.isEnabled("EXPERIMENTAL_ENTITY_NBT")) {
+            NbtCompound nbtCompound = new NbtCompound();
+            entity.writeNbt(nbtCompound);
+            DataResult<JsonElement> jsonElementDataResult = NbtCompound.CODEC.encodeStart(JsonOps.INSTANCE,
+                    nbtCompound);
+            jsonObject.add("nbt", jsonElementDataResult.getOrThrow());
         }
 
         return jsonObject;
     }
 
+    public static JsonElement fromQuaternion(Quaternionf quaternion) {
+        JsonObject pos = new JsonObject();
+        pos.addProperty("x", quaternion.x);
+        pos.addProperty("y", quaternion.y);
+        pos.addProperty("z", quaternion.z);
+        pos.addProperty("w", quaternion.w);
+        return pos;
+    }
+
+    public static JsonElement fromVector(Vector3f vector) {
+        JsonObject pos = new JsonObject();
+        pos.addProperty("x", vector.x);
+        pos.addProperty("y", vector.y);
+        pos.addProperty("z", vector.z);
+        return pos;
+    }
+
     private static JsonElement serializeState(BlockState properties) {
         DataResult<JsonElement> result = BlockState.CODEC.encodeStart(JsonOps.INSTANCE, properties);
-        return result.getOrThrow(true, s -> {
-        }).getAsJsonObject().get("Properties");
+        return result.getOrThrow()
+                .getAsJsonObject()
+                .get("Properties");
     }
 
     public static Text toText(JsonElement json) {
-        return Text.Serializer.fromJson(json);
+        return TextCodecs.CODEC.decode(JsonOps.INSTANCE, gson.fromJson(json, JsonElement.class))
+                .getOrThrow()
+                .getFirst();
     }
 
     public static BlockPos toBlockPos(JsonElement json) {
         JsonObject positionJson = json.getAsJsonObject();
-        int x = positionJson.get("x").getAsInt();
-        int y = positionJson.get("y").getAsInt();
-        int z = positionJson.get("z").getAsInt();
+        int x = positionJson.get("x")
+                .getAsInt();
+        int y = positionJson.get("y")
+                .getAsInt();
+        int z = positionJson.get("z")
+                .getAsInt();
         return new BlockPos(x, y, z);
     }
 
     public static Position toPosition(JsonElement json) {
         JsonObject positionJson = json.getAsJsonObject();
-        double x = positionJson.get("x").getAsDouble();
-        double y = positionJson.get("y").getAsDouble();
-        double z = positionJson.get("z").getAsDouble();
-        return new PositionImpl(x, y, z);
+        double x = positionJson.get("x")
+                .getAsDouble();
+        double y = positionJson.get("y")
+                .getAsDouble();
+        double z = positionJson.get("z")
+                .getAsDouble();
+        return new Vec3d(x, y, z);
     }
 
     public static JsonElement fromSlotItem(SlotItem slotItem) {

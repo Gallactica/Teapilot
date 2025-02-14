@@ -1,4 +1,4 @@
-package me.teawin.teapilot.protocol.request;
+package me.teawin.teapilot.protocol.request.visual;
 
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
@@ -21,6 +21,8 @@ public class ChatRequest extends Request {
         return null;
     }
 
+    private boolean overlay;
+
     @Override
     public @Nullable Response call() {
         Text message = this.getMessage();
@@ -28,7 +30,7 @@ public class ChatRequest extends Request {
         assert message != null;
         assert MinecraftClient.getInstance().player != null;
 
-        MinecraftClient.getInstance().player.sendMessage(message);
+        MinecraftClient.getInstance().player.sendMessage(message, overlay);
 
         return null;
     }

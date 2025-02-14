@@ -26,7 +26,7 @@ import java.util.List;
 public class ClientPlayerInteractionManagerMixin {
     @Inject(method = "clickSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V"), locals = LocalCapture.CAPTURE_FAILHARD)
     public void clickSlot(int syncId, int slotId, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci, ScreenHandler screenHandler, DefaultedList defaultedList, int i, List list, Int2ObjectMap<ItemStack> int2ObjectMap) {
-        if (Teapilot.flagsManager.isDisabled("PACKET_CONTAINER")) return;
+        if (Teapilot.flags.isDisabled("PACKET_CONTAINER")) return;
 
         ItemStack cursor = screenHandler.getCursorStack().copy();
 

@@ -3,9 +3,12 @@ package me.teawin.teapilot;
 import me.teawin.teapilot.protocol.Replayable;
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
-import me.teawin.teapilot.protocol.request.ChatRequest;
+import me.teawin.teapilot.protocol.request.client.ClientConnectRequest;
+import me.teawin.teapilot.protocol.request.client.ClientDisconnectRequest;
+import me.teawin.teapilot.protocol.request.visual.ChatRequest;
 import me.teawin.teapilot.protocol.request.ClientRequest;
-import me.teawin.teapilot.protocol.request.TeapilotRequest;
+import me.teawin.teapilot.protocol.request.player.look.PlayerLookEntityRequest;
+import me.teawin.teapilot.protocol.request.teapilot.TeapilotRequest;
 import me.teawin.teapilot.protocol.request.TooltipRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerChatRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerInfoRequest;
@@ -29,13 +32,14 @@ import me.teawin.teapilot.protocol.request.player.look.PlayerLookRequest;
 import me.teawin.teapilot.protocol.request.player.PlayerEntitySeeRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookTargetRequest;
 import me.teawin.teapilot.protocol.request.player.movement.*;
-import me.teawin.teapilot.protocol.request.scoreboard.SidebarRequest;
+import me.teawin.teapilot.protocol.request.scoreboard.ScoreboardSidebarRequest;
 import me.teawin.teapilot.protocol.request.sign.SignEditRequest;
 import me.teawin.teapilot.protocol.request.sign.SignFinishRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsRequest;
 import me.teawin.teapilot.protocol.request.teapilot.FlagsSetRequest;
 import me.teawin.teapilot.protocol.request.visual.ItemToastRequest;
 import me.teawin.teapilot.protocol.request.visual.ParticleRequest;
+import me.teawin.teapilot.protocol.request.visual.VisualTextRequest;
 import me.teawin.teapilot.protocol.request.world.WorldRaycastRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockAreaRequest;
 import me.teawin.teapilot.protocol.request.world.block.WorldBlockGetRequest;
@@ -48,7 +52,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public class RequestDispatcher {
+public class TeapilotDispatcher {
     public HashMap<String, Class<? extends Replayable>> listeners = new HashMap<>();
 
     public Set<String> getMethods() {
@@ -69,15 +73,14 @@ public class RequestDispatcher {
         });
     }
 
-    public RequestDispatcher() {
+    public TeapilotDispatcher() {
         register("teapilot", TeapilotRequest.class);
         register("flags", FlagsRequest.class);
         register("flags.set", FlagsSetRequest.class);
 
-        register("sidebar", SidebarRequest.class);
+        register("sidebar", ScoreboardSidebarRequest.class);
         register("client", ClientRequest.class);
 
-        register("chat", ChatRequest.class);
         register("tooltip", TooltipRequest.class);
 
         register("player.info", PlayerInfoRequest.class);
@@ -98,6 +101,7 @@ public class RequestDispatcher {
         register("player.rotate", PlayerRotateRequest.class);
         register("player.look", PlayerLookRequest.class);
         register("player.look.target", PlayerLookTargetRequest.class);
+        register("player.look.entity", PlayerLookEntityRequest.class);
         register("player.entity.see", PlayerEntitySeeRequest.class);
 
         register("player.inventory", PlayerInventoryRequest.class);
@@ -124,8 +128,13 @@ public class RequestDispatcher {
 
         register("visual.toast", ItemToastRequest.class);
         register("visual.particle", ParticleRequest.class);
+        register("visual.chat", ChatRequest.class);
+        register("visual.text", VisualTextRequest.class);
 
         register("sign.edit", SignEditRequest.class);
         register("sign.finish", SignFinishRequest.class);
+
+        register("client.connect", ClientConnectRequest.class);
+        register("client.disconnect", ClientDisconnectRequest.class);
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -15,11 +16,11 @@ import java.util.function.Predicate;
 
 public class WorldEntityAreaRequest extends Request {
 
-    private BlockPos position;
+    private Vec3d position;
     private int radius;
     private boolean relative;
-    private BlockPos start;
-    private BlockPos end;
+    private Vec3d start;
+    private Vec3d end;
 
     @Override
     public @Nullable Response call() {
@@ -28,13 +29,13 @@ public class WorldEntityAreaRequest extends Request {
 
         if (relative) {
             assert MinecraftClient.getInstance().player != null;
-            position = MinecraftClient.getInstance().player.getBlockPos();
+            position = Vec3d.of(MinecraftClient.getInstance().player.getBlockPos());
         }
 
         if (position != null) {
             if (radius > 0) {
-                start = new BlockPos(-radius, -radius, -radius);
-                end = new BlockPos(radius, radius, radius);
+                start = new Vec3d(-radius, -radius, -radius);
+                end = new Vec3d(radius, radius, radius);
             }
             start = start.add(position);
             end = end.add(position);
@@ -43,7 +44,8 @@ public class WorldEntityAreaRequest extends Request {
         assert start != null;
         assert end != null;
 
-        List<Entity> targetEntities = world.getEntitiesByClass(Entity.class, new Box(start, end), Predicate.not(Predicate.isEqual(MinecraftClient.getInstance().player)));
+        List<Entity> targetEntities = world.getEntitiesByClass(Entity.class, new Box(start, end),
+                Predicate.not(Predicate.isEqual(MinecraftClient.getInstance().player)));
 
         return new WorldEntityAreaResponse(targetEntities);
     }

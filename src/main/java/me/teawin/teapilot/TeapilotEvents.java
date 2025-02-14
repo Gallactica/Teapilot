@@ -6,32 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum TeapilotEvents {
-    POSITION("position"),
-    PARTICLE("particle"),
-    SOUND("sound"),
-    CHAT("chat"),
-    OVERLAY("overlay"),
-    ENTITY_SPAWN("entity_spawn"),
-    ENTITY_UPDATE("entity_update"),
-    ENTITY_DESPAWN("entity_despawn"),
-    TOOLTIP("tooltip"),
-    SEND_MESSAGE("send_message"),
-    SEND_COMMAND("send_command"),
-    DISCONNECT("disconnect"),
-    CONNECT("connect"),
-    CONTAINER_OPEN("container_open"),
-    CONTAINER_CLOSE("container_close"),
-    CONTAINER_UPDATE("container_update"),
-    CONTAINER_UPDATE_SLOT("container_update_slot"),
-    CONTAINER_UPDATE_TRANSACTION("container_update_transaction"),
-    BLOCK_UPDATE("block_update"),
-    WORLD_CHANGE("world_change"),
-    SIGN_OPEN("sign_open"),
-    SIGN_CLOSE("sign_close"),
-    WINDOW_FOCUS("window_focus"),
-    WINDOW_BLUR("window_blur"),
-    TICK("tick"),
-    FISH_HOOK("fish_hook");
+    POSITION("position"), PARTICLE("particle"), SOUND("sound"), CHAT("chat"), OVERLAY("overlay"), ENTITY_SPAWN(
+            "entity_spawn"), ENTITY_UPDATE("entity_update"), ENTITY_DESPAWN("entity_despawn"), TOOLTIP(
+            "tooltip"), SEND_MESSAGE("send_message"), SEND_COMMAND("send_command"), DISCONNECT("disconnect"), CONNECT(
+            "connect"), CONTAINER_OPEN("container_open"), CONTAINER_CLOSE("container_close"), CONTAINER_UPDATE(
+            "container_update"), CONTAINER_UPDATE_SLOT("container_update_slot"), CONTAINER_UPDATE_TRANSACTION(
+            "container_update_transaction"), BLOCK_UPDATE("block_update"), WORLD_CHANGE("world_change"), SIGN_OPEN(
+            "sign_open"), SIGN_CLOSE("sign_close"), WINDOW_FOCUS("window_focus"), WINDOW_BLUR("window_blur"), TICK(
+            "tick"), FISH_HOOK("fish_hook"), LOOK_REACHED("look_reached"), LOOK_ABORTED("look_aborted"), FUNCTION_KEY(
+            "function_key");
 
     private final String name;
 
