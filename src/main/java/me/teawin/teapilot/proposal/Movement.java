@@ -12,10 +12,9 @@ import java.util.concurrent.TimeUnit;
 public class Movement {
 
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-    public static Vec2f vec = new Vec2f(0, 0);
-
     private static ScheduledFuture<?> scheduledFuture = null;
+    
+    public static Vec2f direction = new Vec2f(0, 0);
 
     public static void setMovement(float x, float y, boolean sneak, boolean jump, boolean sprint, int duration) {
         setMovement(x, y, duration);
@@ -25,12 +24,9 @@ public class Movement {
             return;
         }
 
-        if (jump)
-            ControlOverride.press(MinecraftClient.getInstance().options.jumpKey, duration);
-        if (sneak)
-            ControlOverride.press(MinecraftClient.getInstance().options.sneakKey, duration);
-        if (sprint)
-            ControlOverride.press(MinecraftClient.getInstance().options.sprintKey, duration);
+        if (jump) ControlOverride.press(MinecraftClient.getInstance().options.jumpKey, duration);
+        if (sneak) ControlOverride.press(MinecraftClient.getInstance().options.sneakKey, duration);
+        if (sprint) ControlOverride.press(MinecraftClient.getInstance().options.sprintKey, duration);
     }
 
     public static void setMovement(float x, float y, int duration) {
@@ -46,18 +42,26 @@ public class Movement {
         float dx = MathHelper.clamp(x, -1, 1);
         float dy = MathHelper.clamp(y, -1, 1);
 
-        vec = new Vec2f(dx, dy);
+        direction = new Vec2f(dx, dy);
 
         scheduledFuture = scheduler.schedule(Movement::reset, duration, TimeUnit.MILLISECONDS);
     }
 
     public static void reset() {
-        vec = Vec2f.ZERO;
+        direction = Vec2f.ZERO;
     }
 
     public static void resetKeys() {
         ControlOverride.press(MinecraftClient.getInstance().options.jumpKey, -1);
         ControlOverride.press(MinecraftClient.getInstance().options.sneakKey, -1);
         ControlOverride.press(MinecraftClient.getInstance().options.sprintKey, -1);
+    }
+
+    public static float getMovementMultiplier(boolean positive, boolean negative) {
+        if (positive == negative) {
+            return 0.0F;
+        } else {
+            return positive ? 1.0F : -1.0F;
+        }
     }
 }

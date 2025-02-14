@@ -13,7 +13,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class WindowMixin {
     @Inject(method = "onWindowFocusChanged", at = @At(value = "HEAD"))
     public void onWindowFocusChanged(long window, boolean focused, CallbackInfo ci) {
-        JsonObject event = TeapilotEvents.createEvent(focused ? TeapilotEvents.WINDOW_FOCUS : TeapilotEvents.WINDOW_BLUR);
-        Teapilot.teapilotServer.broadcast(event);
+        if (Teapilot.flags.isEnabled("PACKET_WINDOW")) {
+            JsonObject event = TeapilotEvents.createEvent(
+                    focused ? TeapilotEvents.WINDOW_FOCUS : TeapilotEvents.WINDOW_BLUR);
+            Teapilot.teapilotServer.broadcast(event);
+        }
     }
 }

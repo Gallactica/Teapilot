@@ -7,6 +7,7 @@ import com.mojang.brigadier.ParseResults;
 import me.teawin.teapilot.Teapilot;
 import me.teawin.teapilot.JsonUtils;
 import me.teawin.teapilot.TeapilotEvents;
+import me.teawin.teapilot.proposal.ControlLook;
 import me.teawin.teapilot.proposal.ParticleManager;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.command.CommandSource;
@@ -28,6 +29,16 @@ public abstract class ClientPlayProtocolMixin {
     @Shadow
     protected abstract ParseResults<CommandSource> parse(String command);
 
+    @Inject(method = "onPlayerPositionLook", at = @At("HEAD"))
+    public void onPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
+        ControlLook.abort();
+    }
+
+    @Inject(method = "onEntityTrackerUpdate(Lnet/minecraft/network/packet/s2c/play/EntityTrackerUpdateS2CPacket;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/data/DataTracker;writeUpdatedEntries(Ljava/util/List;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
+    public void onEntityTrackerUpdate(EntityTrackerUpdateS2CPacket packet, CallbackInfo ci, Entity entity) {
+        Teapilot.broadcastEntityUpdate(entity);
+    }
+
     @Inject(method = "onEntityAttributes(Lnet/minecraft/network/packet/s2c/play/EntityAttributesS2CPacket;)V", at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     public void onEntityAttributes(EntityAttributesS2CPacket packet, CallbackInfo ci, Entity entity) {
 //        System.out.println("onEntityAttributes " + entity.toString() + packet.toString());
@@ -40,7 +51,7 @@ public abstract class ClientPlayProtocolMixin {
         Teapilot.broadcastEntityUpdate(entity);
     }
 
-    @Inject(method = "onEntityPosition", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;updateTrackedPosition(DDD)V", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "onEntityPosition", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;setPosition(Lnet/minecraft/entity/player/PlayerPosition;Ljava/util/Set;Lnet/minecraft/entity/Entity;Z)Z", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     public void onEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci, Entity entity) {
 //        System.out.println("onEntityPosition " + entity.toString() + packet.toString());
         Teapilot.broadcastEntityUpdate(entity);
@@ -54,7 +65,7 @@ public abstract class ClientPlayProtocolMixin {
 
     @Inject(method = "onScreenHandlerSlotUpdate", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     public void onScreenHandlerSlotUpdate(ScreenHandlerSlotUpdateS2CPacket packet, CallbackInfo ci, PlayerEntity playerEntity, ItemStack itemStack, int i) {
-        if (Teapilot.flagsManager.isDisabled("PACKET_CONTAINER")) return;
+        if (Teapilot.flags.isDisabled("PACKET_CONTAINER")) return;
 
         var event = TeapilotEvents.createEvent(TeapilotEvents.CONTAINER_UPDATE_SLOT);
 
@@ -66,16 +77,18 @@ public abstract class ClientPlayProtocolMixin {
 
     @Inject(method = "onInventory", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     public void onInventory(InventoryS2CPacket packet, CallbackInfo ci, PlayerEntity playerEntity) {
-        if (Teapilot.flagsManager.isDisabled("PACKET_CONTAINER")) return;
+        if (Teapilot.flags.isDisabled("PACKET_CONTAINER")) return;
 
         var event = TeapilotEvents.createEvent(TeapilotEvents.CONTAINER_UPDATE);
 
         event.add("cursor", JsonUtils.fromItemStack(packet.getCursorStack()));
         JsonArray items = new JsonArray();
-        for (int i = 0; i < packet.getContents().size(); i++) {
+        for (int i = 0; i < packet.getContents()
+                .size(); i++) {
             JsonObject jsonObject = new JsonObject();
             jsonObject.add("slot", new JsonPrimitive(i));
-            jsonObject.add("item", JsonUtils.fromItemStack(packet.getContents().get(i)));
+            jsonObject.add("item", JsonUtils.fromItemStack(packet.getContents()
+                    .get(i)));
             items.add(jsonObject);
         }
 //        for (ItemStack content : packet.getContents()) {
@@ -90,13 +103,13 @@ public abstract class ClientPlayProtocolMixin {
     public void onScoreboardObjectiveUpdate(ScoreboardObjectiveUpdateS2CPacket packet, CallbackInfo ci) {
     }
 
-    @Inject(method = "onScoreboardPlayerUpdate", at = @At("TAIL"))
-    public void onScoreboardPlayerUpdate(ScoreboardPlayerUpdateS2CPacket packet, CallbackInfo ci) {
+    @Inject(method = "onScoreboardScoreUpdate", at = @At("TAIL"))
+    public void onScoreboardScoreUpdate(ScoreboardScoreUpdateS2CPacket packet, CallbackInfo ci) {
     }
 
     @Inject(method = "onCloseScreen", at = @At("TAIL"))
     public void onCloseScreen(CloseScreenS2CPacket packet, CallbackInfo ci) {
-        if (Teapilot.flagsManager.isDisabled("PACKET_CONTAINER")) return;
+        if (Teapilot.flags.isDisabled("PACKET_CONTAINER")) return;
         var event = TeapilotEvents.createEvent(TeapilotEvents.CONTAINER_CLOSE);
         event.addProperty("side", "server");
         Teapilot.teapilotServer.broadcast(event);
@@ -104,7 +117,7 @@ public abstract class ClientPlayProtocolMixin {
 
     @Inject(method = "onBlockUpdate", at = @At("TAIL"))
     public void onBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
-        if (Teapilot.flagsManager.isDisabled("PACKET_BLOCK_UPDATE")) return;
+        if (Teapilot.flags.isDisabled("PACKET_BLOCK_UPDATE")) return;
 
         var event = TeapilotEvents.createEvent(TeapilotEvents.BLOCK_UPDATE);
         JsonArray blocks = new JsonArray();
@@ -120,9 +133,10 @@ public abstract class ClientPlayProtocolMixin {
 
     @Inject(method = "onParticle", at = @At("HEAD"))
     public void onParticle(ParticleS2CPacket packet, CallbackInfo ci) {
-        if (Teapilot.flagsManager.isDisabled("PACKET_PARTICLE")) return;
+        if (Teapilot.flags.isDisabled("PACKET_PARTICLE")) return;
 
-        ParticleType<?> particleType = packet.getParameters().getType();
+        ParticleType<?> particleType = packet.getParameters()
+                .getType();
         String type = ParticleManager.typeOf(particleType);
 
         JsonObject event = TeapilotEvents.createEvent(TeapilotEvents.PARTICLE);
@@ -140,7 +154,7 @@ public abstract class ClientPlayProtocolMixin {
 
     @Inject(method = "onChunkDeltaUpdate", at = @At("TAIL"))
     public void onChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
-        if (Teapilot.flagsManager.isDisabled("PACKET_BLOCK_UPDATE")) return;
+        if (Teapilot.flags.isDisabled("PACKET_BLOCK_UPDATE")) return;
 
         var event = TeapilotEvents.createEvent(TeapilotEvents.BLOCK_UPDATE);
         JsonArray blocks = new JsonArray();

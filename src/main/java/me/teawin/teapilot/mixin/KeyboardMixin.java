@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class KeyboardMixin {
     @Inject(method = "onKey", at = @At("HEAD"), cancellable = true)
     private void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
-        if (Teapilot.flagsManager.isEnabled("PILOT_CONTROL_ONLY")) ci.cancel();
+        if (Teapilot.flags.isEnabled("PILOT_CONTROL_ONLY")) ci.cancel();
     }
 
     @Inject(method = "onChar", at = @At("HEAD"), cancellable = true)
     private void onChar(long window, int codePoint, int modifiers, CallbackInfo ci) {
-        if (Teapilot.flagsManager.isEnabled("PILOT_CONTROL_ONLY")) ci.cancel();
+        if (Teapilot.flags.isEnabled("PILOT_CONTROL_ONLY")) ci.cancel();
     }
 }

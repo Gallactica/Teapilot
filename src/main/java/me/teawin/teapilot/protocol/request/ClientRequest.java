@@ -13,20 +13,23 @@ public class ClientRequest extends Request {
 
         CompletableFuture<ClientResponse> future = new CompletableFuture<>();
 
-        MinecraftClient.getInstance().execute(() -> {
-            Window window = MinecraftClient.getInstance().getWindow();
+        MinecraftClient.getInstance()
+                .execute(() -> {
+                    Window window = MinecraftClient.getInstance()
+                            .getWindow();
 
-            ClientResponse response = new ClientResponse();
-            response.setWidth(window.getWidth());
-            response.setHeight(window.getHeight());
-            response.setX(window.getX());
-            response.setY(window.getY());
-            response.setScale(window.getScaleFactor());
-            response.setFov(MinecraftClient.getInstance().options.getFov().getValue());
-            response.setFullscreen(window.isFullscreen());
+                    ClientResponse response = new ClientResponse();
+                    response.setWidth(window.getWidth());
+                    response.setHeight(window.getHeight());
+                    response.setX(window.getX());
+                    response.setY(window.getY());
+                    response.setScale(window.getScaleFactor());
+                    response.setFov(MinecraftClient.getInstance().options.getFov()
+                            .getValue());
+                    response.setFullscreen(window.isFullscreen());
 
-            future.complete(response);
-        });
+                    future.complete(response);
+                });
 
         return future;
     }

@@ -33,7 +33,7 @@ public class MinecraftClientMixin {
     public Screen currentScreen;
 
     @Inject(method = "joinWorld", at = @At("TAIL"))
-    public void joinWorld(ClientWorld world, CallbackInfo ci) {
+    public void joinWorld(ClientWorld world, DownloadingTerrainScreen.WorldEntryReason worldEntryReason, CallbackInfo ci) {
         var event = TeapilotEvents.createEvent(TeapilotEvents.WORLD_CHANGE);
         Teapilot.teapilotServer.broadcast(event);
     }

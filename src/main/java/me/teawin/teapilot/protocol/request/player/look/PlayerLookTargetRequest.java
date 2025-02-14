@@ -1,5 +1,6 @@
 package me.teawin.teapilot.protocol.request.player.look;
 
+import me.teawin.teapilot.proposal.ControlLook;
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import net.minecraft.client.MinecraftClient;
@@ -17,6 +18,7 @@ public class PlayerLookTargetRequest extends Request {
     private double z;
     private float spread;
     private boolean center;
+    private int duration;
 
 
     @Override
@@ -51,10 +53,16 @@ public class PlayerLookTargetRequest extends Request {
         float pitch = MathHelper.wrapDegrees((float) (-(MathHelper.atan2(e, g) * 57.2957763671875)));
         float yaw = MathHelper.wrapDegrees((float) (MathHelper.atan2(f, d) * 57.2957763671875) - 90.0F);
 
-        player.setPitch(pitch + spread_pitch);
-        player.setYaw(yaw + spread_yaw);
-        player.setHeadYaw(player.getYaw());
-        player.setPitch(MathHelper.clamp(player.getPitch(), -90.0F, 90.0F));
+        if (duration == 0) {
+            duration = 20;
+        }
+        if (duration < 0) {
+            duration = 0;
+        }
+
+        ControlLook.look(yaw, pitch, duration);
+        ControlLook.spread_pitch = spread_pitch;
+        ControlLook.spread_yaw = spread_yaw;
         return null;
     }
 }

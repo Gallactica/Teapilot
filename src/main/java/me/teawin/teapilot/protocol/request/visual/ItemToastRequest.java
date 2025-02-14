@@ -4,7 +4,10 @@ import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import me.teawin.teapilot.visual.ItemToast;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemToastRequest extends Request {
@@ -18,9 +21,11 @@ public class ItemToastRequest extends Request {
         if (title == null) title = Text.empty();
         if (description == null) description = Text.empty();
 
-        ItemToast itemToast = new ItemToast(id, title, description);
+        ItemStack item = Registries.ITEM.get(Identifier.tryParse(id))
+                .getDefaultStack();
 
-        MinecraftClient.getInstance().getToastManager().add(itemToast);
+        ItemToast.show(MinecraftClient.getInstance()
+                .getToastManager(), title, description, item);
 
         return null;
     }

@@ -5,7 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Position;
-import net.minecraft.util.math.PositionImpl;
+import net.minecraft.util.math.Vec3d;
 
 public class RaycastResponse extends Response {
     private String type;
@@ -30,7 +30,7 @@ public class RaycastResponse extends Response {
     }
 
     public void setPosition(BlockPos position) {
-        this.position = new PositionImpl(position.getX(), position.getY(), position.getZ());
+        this.position = new Vec3d(position.getX(), position.getY(), position.getZ());
     }
 
     public void setPosition(Position entityPos) {

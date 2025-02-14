@@ -11,5 +11,4 @@ public class ScreenJson implements JsonSerializer<Screen> {
     public JsonElement serialize(Screen src, Type typeOfSrc, JsonSerializationContext context) {
         return JsonUtils.fromScreen(src);
     }
-
 }

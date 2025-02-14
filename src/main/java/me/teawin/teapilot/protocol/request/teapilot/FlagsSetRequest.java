@@ -4,7 +4,7 @@ import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import org.jetbrains.annotations.Nullable;
 
-import static me.teawin.teapilot.Teapilot.flagsManager;
+import static me.teawin.teapilot.Teapilot.flags;
 
 public class FlagsSetRequest extends Request {
     private boolean state;
@@ -12,7 +12,7 @@ public class FlagsSetRequest extends Request {
 
     @Override
     public @Nullable Response call() {
-        flagsManager.set(name, state);
+        flags.toggle(name, state);
 
         return null;
     }

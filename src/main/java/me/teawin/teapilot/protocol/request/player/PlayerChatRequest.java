@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static me.teawin.teapilot.Teapilot.flagsManager;
+import static me.teawin.teapilot.Teapilot.flags;
 
 public class PlayerChatRequest extends Request {
     private String text;
@@ -28,15 +28,19 @@ public class PlayerChatRequest extends Request {
         assert message != null;
 
         if (message.startsWith("/")) {
-            var prev = flagsManager.get("INTERCEPT_SEND_CHAT_COMMAND");
-            flagsManager.set("INTERCEPT_SEND_CHAT_COMMAND", false);
-            Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).sendChatCommand(message.substring(1));
-            flagsManager.set("INTERCEPT_SEND_CHAT_COMMAND", prev);
+            var prev = flags.isEnabled("INTERCEPT_SEND_CHAT_COMMAND");
+            flags.toggle("INTERCEPT_SEND_CHAT_COMMAND", false);
+            Objects.requireNonNull(MinecraftClient.getInstance()
+                            .getNetworkHandler())
+                    .sendChatCommand(message.substring(1));
+            flags.toggle("INTERCEPT_SEND_CHAT_COMMAND", prev);
         } else {
-            var prev = flagsManager.get("INTERCEPT_SEND_CHAT_MESSAGE");
-            flagsManager.set("INTERCEPT_SEND_CHAT_MESSAGE", false);
-            Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).sendChatMessage(message);
-            flagsManager.set("INTERCEPT_SEND_CHAT_MESSAGE", prev);
+            var prev = flags.isEnabled("INTERCEPT_SEND_CHAT_MESSAGE");
+            flags.toggle("INTERCEPT_SEND_CHAT_MESSAGE", false);
+            Objects.requireNonNull(MinecraftClient.getInstance()
+                            .getNetworkHandler())
+                    .sendChatMessage(message);
+            flags.toggle("INTERCEPT_SEND_CHAT_MESSAGE", prev);
         }
 
         return null;
