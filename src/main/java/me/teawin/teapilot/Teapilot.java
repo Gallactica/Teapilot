@@ -131,7 +131,7 @@ public class Teapilot implements ModInitializer {
                     if (fishingBobberEntity.getPlayerOwner() != null) {
                         if (fishingBobberEntity.getPlayerOwner()
                                 .equals(MinecraftClient.getInstance().player)) {
-                            var event = TeapilotEvents.createEvent(TeapilotEvents.FISHING_HOOK);
+                            var event = TeapilotEvents.createEvent(TeapilotEvents.FISHING_HOOK_SPAWN);
                             event.add("hook", JsonUtils.fromEntity(entity));
                             teapilotServer.broadcast(event);
                         }
@@ -148,6 +148,19 @@ public class Teapilot implements ModInitializer {
         });
 
         ClientEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
+            if (flags.isEnabled("PACKET_FISHING")) {
+                if (entity instanceof FishingBobberEntity fishingBobberEntity) {
+                    if (fishingBobberEntity.getPlayerOwner() != null) {
+                        if (fishingBobberEntity.getPlayerOwner()
+                                .equals(MinecraftClient.getInstance().player)) {
+                            var event = TeapilotEvents.createEvent(TeapilotEvents.FISHING_HOOK_DESPAWN);
+                            event.add("hook", JsonUtils.fromEntity(entity));
+                            teapilotServer.broadcast(event);
+                        }
+                    }
+                }
+            }
+
             if (flags.isDisabled("PACKET_ENTITY")) return;
 
             JsonObject event = TeapilotEvents.createEvent(TeapilotEvents.ENTITY_DESPAWN);
