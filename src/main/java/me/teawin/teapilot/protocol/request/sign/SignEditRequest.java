@@ -14,12 +14,15 @@ public class SignEditRequest extends Request {
 
     @Override
     public @Nullable Response call() throws Exception {
+        assert message != null;
+
         if (MinecraftClient.getInstance().currentScreen instanceof AbstractSignEditScreen signEditScreen) {
             int rowId = MathHelper.clamp(row, 0, 3);
 
             AbstractSignEditScreenAccessor editScreenAccessor = (AbstractSignEditScreenAccessor) signEditScreen;
-            int maxWidth = ((AbstractSignEditScreenAccessor) signEditScreen).getBlockEntity().getMaxTextWidth();
-            
+            int maxWidth = ((AbstractSignEditScreenAccessor) signEditScreen).getBlockEntity()
+                    .getMaxTextWidth();
+
             String lastMessage = "";
             for (char c : message.toCharArray()) {
                 lastMessage += c;

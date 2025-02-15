@@ -19,8 +19,7 @@ public class PlayerLookTargetRequest extends Request {
     private float spread;
     private boolean center;
     private int duration;
-
-
+    
     @Override
     public @Nullable Response call() throws Exception {
         Random random = new Random();

@@ -11,23 +11,24 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class ParticleRequest extends Request {
     private Vec3d position;
     private Vec3d velocity;
     private String type;
-    private Boolean relative;
-
-    private static final Vec3d ZERO_VELOCITY = new Vec3d(0, 0, 0);
+    private boolean relative;
 
     @Override
     public @Nullable Response call() throws Exception {
+        assert type != null;
+
         World world = MinecraftClient.getInstance().world;
         assert world != null;
-        assert type != null;
 
         ParticleType<?> particleType = ParticleManager.typeOf(type);
 
-        if (velocity == null) velocity = ZERO_VELOCITY;
+        velocity = Objects.requireNonNullElseGet(velocity, () -> Vec3d.ZERO);
 
         MinecraftClient.getInstance()
                 .execute(() -> {

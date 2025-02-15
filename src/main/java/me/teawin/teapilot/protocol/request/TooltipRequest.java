@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class TooltipRequest extends Request {
-    List<Text> texts;
+    private List<Text> texts;
 
     @Override
     public @Nullable Response call() {
