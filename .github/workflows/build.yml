@@ -49,5 +49,5 @@ jobs:
     - name: Build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Artifacts
-        path: 'build/libs/*.jar'
+        name: teapilot
+        path: build/libs/teapilot.jar
