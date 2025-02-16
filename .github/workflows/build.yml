@@ -25,12 +25,29 @@ jobs:
         key: ${{ runner.os }}-loom
     - name: Build with Gradle
       run: ./gradlew build
-    - name: Get JAR file name
-      id: get-jar-name
+    - name: Find and Rename JAR
+      shell: bash
       run: |
-        echo "JAR_FILE=$(ls build/libs/*.jar)" >> $GITHUB_OUTPUT
+          files=($(find build/libs -name "*.jar" ! -name "*-sources.jar"))
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::No JAR files found matching the pattern."
+            exit 1
+          fi
+
+          first_file="${files[0]}"
+          new_file_path="build/libs/teapilot.jar"
+          
+          if [ -f "$new_file_path" ]; then
+            echo "File '$new_file_path' already exists. Deleting."
+            rm "$new_file_path"
+          fi
+          
+          mv "$first_file" "$new_file_path"
+          echo "File '$first_file' renamed to '$new_file_path'"
+
     - name: Build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: Artifacts
-        path: '${{ steps.get-jar-name.outputs.JAR_FILE }}'
+        path: 'build/libs/*.jar'
