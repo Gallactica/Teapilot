@@ -17,37 +17,10 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
     - name: Set execute permissions for Gradlew
       run: chmod +x gradlew
-    - name: Cache Loom
-      id: cache-loom
-      uses: actions/cache@v4
-      with:
-        path: 'build/loom-cache'
-        key: ${{ runner.os }}-loom
     - name: Build with Gradle
       run: ./gradlew build
-    - name: Find and Rename JAR
-      shell: bash
-      run: |
-          files=($(find build/libs -name "*.jar" ! -name "*-sources.jar"))
-
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "::error::No JAR files found matching the pattern."
-            exit 1
-          fi
-
-          first_file="${files[0]}"
-          new_file_path="build/libs/teapilot.jar"
-          
-          if [ -f "$new_file_path" ]; then
-            echo "File '$new_file_path' already exists. Deleting."
-            rm "$new_file_path"
-          fi
-          
-          mv "$first_file" "$new_file_path"
-          echo "File '$first_file' renamed to '$new_file_path'"
-
     - name: Build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: teapilot
-        path: build/libs/teapilot.jar
+        name: Artifacts
+        path: build/libs/*.jar
