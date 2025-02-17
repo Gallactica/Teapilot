@@ -8,10 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ChatRequest extends Request {
 
-    @Nullable
     private String text;
-
-    @Nullable
     private Text message;
 
     @Nullable

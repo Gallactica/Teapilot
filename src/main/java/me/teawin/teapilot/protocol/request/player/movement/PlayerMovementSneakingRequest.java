@@ -7,7 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayerMovementSneakingRequest extends Request {
-    int duration;
+    private int duration;
 
     @Override
     public @Nullable Response call() throws Exception {

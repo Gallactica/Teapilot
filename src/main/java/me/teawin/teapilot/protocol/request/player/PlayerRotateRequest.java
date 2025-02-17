@@ -7,11 +7,14 @@ import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayerRotateRequest extends Request {
-    private double x;
-    private double y;
+    private Double x;
+    private Double y;
 
     @Override
     public @Nullable Response call() throws Exception {
+        assert x != null;
+        assert y != null;
+
         PlayerEntity player = MinecraftClient.getInstance().player;
         assert player != null;
         player.changeLookDirection(x, y);

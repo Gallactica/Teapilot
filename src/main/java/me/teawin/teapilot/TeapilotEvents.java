@@ -13,8 +13,9 @@ public enum TeapilotEvents {
             "container_update"), CONTAINER_UPDATE_SLOT("container_update_slot"), CONTAINER_UPDATE_TRANSACTION(
             "container_update_transaction"), BLOCK_UPDATE("block_update"), WORLD_CHANGE("world_change"), SIGN_OPEN(
             "sign_open"), SIGN_CLOSE("sign_close"), WINDOW_FOCUS("window_focus"), WINDOW_BLUR("window_blur"), TICK(
-            "tick"), FISH_HOOK("fish_hook"), LOOK_REACHED("look_reached"), LOOK_ABORTED("look_aborted"), FUNCTION_KEY(
-            "function_key");
+            "tick"), FISHING_HOOK_SPAWN("fishing_hook_spawn"), FISHING_HOOK_UPDATE(
+            "fishing_hook_update"), FISHING_HOOK_DESPAWN("fishing_hook_despawn"), LOOK_REACHED(
+            "look_reached"), LOOK_ABORTED("look_aborted"), FUNCTION_KEY("function_key");
 
     private final String name;
 

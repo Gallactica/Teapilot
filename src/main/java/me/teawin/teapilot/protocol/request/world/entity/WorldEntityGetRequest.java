@@ -10,8 +10,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class WorldEntityGetRequest extends Request {
-    int id;
-    UUID uuid;
+    private Integer id;
+    private UUID uuid;
 
     @Override
     public @Nullable Response call() throws Exception {
@@ -19,11 +19,12 @@ public class WorldEntityGetRequest extends Request {
 
         Entity entity = null;
 
-        if (id != 0) {
+        if (id != null) {
             entity = MinecraftClient.getInstance().world.getEntityById(id);
         } else if (uuid != null) {
             for (Entity worldEntity : MinecraftClient.getInstance().world.getEntities()) {
-                if (worldEntity.getUuid().equals(uuid)) {
+                if (worldEntity.getUuid()
+                        .equals(uuid)) {
                     entity = worldEntity;
                     break;
                 }

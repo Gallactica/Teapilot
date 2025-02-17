@@ -12,6 +12,8 @@ public class FlagsSetRequest extends Request {
 
     @Override
     public @Nullable Response call() {
+        assert name != null;
+
         flags.toggle(name, state);
 
         return null;

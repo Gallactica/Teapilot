@@ -5,6 +5,7 @@ import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import me.teawin.teapilot.protocol.request.client.ClientConnectRequest;
 import me.teawin.teapilot.protocol.request.client.ClientDisconnectRequest;
+import me.teawin.teapilot.protocol.request.memory.*;
 import me.teawin.teapilot.protocol.request.visual.ChatRequest;
 import me.teawin.teapilot.protocol.request.ClientRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookEntityRequest;
@@ -136,5 +137,12 @@ public class TeapilotDispatcher {
 
         register("client.connect", ClientConnectRequest.class);
         register("client.disconnect", ClientDisconnectRequest.class);
+
+        register("memory.get", MemoryGetRequest.class);
+        register("memory.set", MemorySetRequest.class);
+        register("memory.delete", MemoryDeleteRequest.class);
+        register("memory.keys", MemoryKeysRequest.class);
+        register("memory.size", MemorySizeRequest.class);
+        register("memory.reset", MemoryResetRequest.class);
     }
 }

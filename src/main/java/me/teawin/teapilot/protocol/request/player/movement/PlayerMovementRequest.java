@@ -6,12 +6,12 @@ import me.teawin.teapilot.protocol.Response;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayerMovementRequest extends Request {
-    int duration;
-    boolean jumping;
-    boolean sneaking;
-    boolean sprinting;
-    float x;
-    float y;
+    private int duration;
+    private boolean jumping;
+    private boolean sneaking;
+    private boolean sprinting;
+    private float x;
+    private float y;
 
     @Override
     public @Nullable Response call() throws Exception {

@@ -17,6 +17,9 @@ public class ClientConnectRequest extends Request {
     @Override
     public @Nullable Response call() throws Exception {
         assert MinecraftClient.getInstance().world == null;
+        assert address != null;
+        assert !address.trim()
+                .isEmpty();
 
         var serverAddress = ServerAddress.parse(address);
 

@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import me.teawin.teapilot.mixin.accessor.HandledScreenAccessor;
+import me.teawin.teapilot.proposal.ParticleManager;
 import me.teawin.teapilot.protocol.type.SlotItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -266,9 +267,8 @@ public class JsonUtils {
         }
 
         if (entity instanceof AreaEffectCloudEntity areaEffectCloudEntity) {
-            jsonObject.addProperty("effect", areaEffectCloudEntity.getParticleType()
-                    .getType()
-                    .toString());
+            jsonObject.addProperty("effect", ParticleManager.typeOf(areaEffectCloudEntity.getParticleType()
+                    .getType()));
             jsonObject.addProperty("radius", areaEffectCloudEntity.getRadius());
             jsonObject.addProperty("age", areaEffectCloudEntity.age);
         }

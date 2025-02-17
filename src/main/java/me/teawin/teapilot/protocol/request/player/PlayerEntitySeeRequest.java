@@ -7,13 +7,13 @@ import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.Nullable;
 
 public class PlayerEntitySeeRequest extends Request {
-    private int id;
+    private Integer id;
 
     @Override
     public @Nullable Response call() throws Exception {
         assert MinecraftClient.getInstance().player != null;
         assert MinecraftClient.getInstance().world != null;
-        assert id > 0;
+        assert id != null;
 
         boolean canSee = MinecraftClient.getInstance().player.canSee(MinecraftClient.getInstance().world.getEntityById(id));
 
