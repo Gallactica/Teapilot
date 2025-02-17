@@ -18,7 +18,7 @@ public class GsonConfigurator {
     static {
         GsonBuilder gsonBuilder = new GsonBuilder();
 
-//        gsonBuilder.serializeNulls();
+        gsonBuilder.serializeNulls();
         gsonBuilder.registerTypeAdapter(ItemStack.class, new ItemStackJson());
         gsonBuilder.registerTypeAdapter(Text.class, new TextJson());
         gsonBuilder.registerTypeAdapter(BlockPos.class, new BlockPosJson());
