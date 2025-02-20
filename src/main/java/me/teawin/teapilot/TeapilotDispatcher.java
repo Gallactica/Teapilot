@@ -5,16 +5,14 @@ import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import me.teawin.teapilot.protocol.request.client.ClientConnectRequest;
 import me.teawin.teapilot.protocol.request.client.ClientDisconnectRequest;
+import me.teawin.teapilot.protocol.request.client.ClientSessionRequest;
 import me.teawin.teapilot.protocol.request.memory.*;
+import me.teawin.teapilot.protocol.request.player.*;
 import me.teawin.teapilot.protocol.request.visual.ChatRequest;
 import me.teawin.teapilot.protocol.request.ClientRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookEntityRequest;
 import me.teawin.teapilot.protocol.request.teapilot.TeapilotRequest;
 import me.teawin.teapilot.protocol.request.TooltipRequest;
-import me.teawin.teapilot.protocol.request.player.PlayerChatRequest;
-import me.teawin.teapilot.protocol.request.player.PlayerInfoRequest;
-import me.teawin.teapilot.protocol.request.player.PlayerRaycastRequest;
-import me.teawin.teapilot.protocol.request.player.PlayerRotateRequest;
 import me.teawin.teapilot.protocol.request.container.ContainerScreenRequest;
 import me.teawin.teapilot.protocol.request.container.ContainerRequest;
 import me.teawin.teapilot.protocol.request.container.ContainerSlotClickRequest;
@@ -30,7 +28,6 @@ import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventory
 import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventoryHandRequest;
 import me.teawin.teapilot.protocol.request.player.inventory.hand.PlayerInventoryHandSelectRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookRequest;
-import me.teawin.teapilot.protocol.request.player.PlayerEntitySeeRequest;
 import me.teawin.teapilot.protocol.request.player.look.PlayerLookTargetRequest;
 import me.teawin.teapilot.protocol.request.player.movement.*;
 import me.teawin.teapilot.protocol.request.scoreboard.ScoreboardSidebarRequest;
@@ -134,6 +131,8 @@ public class TeapilotDispatcher {
 
         register("sign.edit", SignEditRequest.class);
         register("sign.finish", SignFinishRequest.class);
+
+        register("client.session", ClientSessionRequest.class);
 
         register("client.connect", ClientConnectRequest.class);
         register("client.disconnect", ClientDisconnectRequest.class);
