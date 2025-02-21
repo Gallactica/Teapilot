@@ -6,6 +6,7 @@ import com.mojang.serialization.JsonOps;
 import me.teawin.teapilot.mixin.accessor.HandledScreenAccessor;
 import me.teawin.teapilot.proposal.ParticleManager;
 import me.teawin.teapilot.protocol.type.SlotItem;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -20,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
@@ -32,6 +34,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,13 +42,35 @@ import static me.teawin.teapilot.protocol.GsonConfigurator.gson;
 
 public class JsonUtils {
     public static JsonElement fromBlockState(BlockState blockState) {
-        JsonObject blockObject = new JsonObject();
-        blockState.getRegistryEntry()
-                .getKey()
-                .ifPresent(blockRegistryKey -> blockObject.addProperty("id", blockRegistryKey.getValue()
-                        .toString()));
-        blockObject.add("properties", serializeState(blockState));
-        return blockObject;
+        JsonObject blockStateJson = BlockState.CODEC.encodeStart(JsonOps.INSTANCE, blockState)
+                .getPartialOrThrow()
+                .getAsJsonObject();
+
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.add("id", blockStateJson.get("Name"));
+        jsonObject.add("nbt", blockStateJson.get("Properties"));
+
+        if (Teapilot.flags.isEnabled("SERIALIZATION_BLOCK_OPAQUE")) {
+            jsonObject.addProperty("opaque", blockState.isOpaqueFullCube());
+        }
+
+        if (Teapilot.flags.isEnabled("SERIALIZATION_BLOCK_LUMINANCE")) {
+            jsonObject.addProperty("luminance", blockState.getLuminance());
+        }
+
+        if (Teapilot.flags.isEnabled("SERIALIZATION_BLOCK_TAGS")) {
+            JsonArray tags = new JsonArray();
+            for (Iterator<TagKey<Block>> it = blockState.streamTags()
+                    .iterator(); it.hasNext(); ) {
+                TagKey<Block> tag = it.next();
+                tags.add(tag.id()
+                        .toString());
+            }
+            jsonObject.add("tags", tags);
+        }
+
+        return jsonObject;
     }
 
     public static JsonElement fromScreen(Screen screen) {
@@ -323,13 +348,6 @@ public class JsonUtils {
         pos.addProperty("y", vector.y);
         pos.addProperty("z", vector.z);
         return pos;
-    }
-
-    private static JsonElement serializeState(BlockState properties) {
-        DataResult<JsonElement> result = BlockState.CODEC.encodeStart(JsonOps.INSTANCE, properties);
-        return result.getOrThrow()
-                .getAsJsonObject()
-                .get("Properties");
     }
 
     public static Text toText(JsonElement json) {

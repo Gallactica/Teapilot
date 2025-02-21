@@ -70,6 +70,10 @@ public class Teapilot implements ModInitializer {
         flags.disable("EXTENDED_TEXT_DISPLAY_ENTITY");
         flags.disable("EXTENDED_VEHICLE_ENTITY");
 
+        flags.disable("SERIALIZATION_BLOCK_OPAQUE");
+        flags.disable("SERIALIZATION_BLOCK_LUMINANCE");
+        flags.disable("SERIALIZATION_BLOCK_TAGS");
+
         flags.disable("PILOT_CONTROL_ONLY");
 
         flags.set("DEBUG_PACKET_LOGGER", isDebug);
