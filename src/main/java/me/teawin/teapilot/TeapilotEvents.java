@@ -15,7 +15,8 @@ public enum TeapilotEvents {
             "sign_open"), SIGN_CLOSE("sign_close"), WINDOW_FOCUS("window_focus"), WINDOW_BLUR("window_blur"), TICK(
             "tick"), FISHING_HOOK_SPAWN("fishing_hook_spawn"), FISHING_HOOK_UPDATE(
             "fishing_hook_update"), FISHING_HOOK_DESPAWN("fishing_hook_despawn"), LOOK_REACHED(
-            "look_reached"), LOOK_ABORTED("look_aborted"), FUNCTION_KEY("function_key");
+            "look_reached"), LOOK_ABORTED("look_aborted"), FUNCTION_KEY("function_key"), BOSSBAR_ADD(
+            "bossbar_add"), BOSSBAR_UPDATE("bossbar_update"), BOSSBAR_REMOVE("bossbar_remove");
 
     private final String name;
 

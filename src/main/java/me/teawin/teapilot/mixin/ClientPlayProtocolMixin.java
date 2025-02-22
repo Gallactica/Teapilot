@@ -7,6 +7,7 @@ import com.mojang.brigadier.ParseResults;
 import me.teawin.teapilot.Teapilot;
 import me.teawin.teapilot.JsonUtils;
 import me.teawin.teapilot.TeapilotEvents;
+import me.teawin.teapilot.proposal.BossBarConsumer;
 import me.teawin.teapilot.proposal.ControlLook;
 import me.teawin.teapilot.proposal.ParticleManager;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -168,5 +169,10 @@ public abstract class ClientPlayProtocolMixin {
 
         event.add("blocks", blocks);
         Teapilot.teapilotServer.broadcast(event);
+    }
+
+    @Inject(at = @At("TAIL"), method = "onBossBar")
+    public void onBossBar(BossBarS2CPacket packet, CallbackInfo info) {
+        if (Teapilot.flags.isEnabled("PACKET_BOSSBAR")) packet.accept(new BossBarConsumer());
     }
 }

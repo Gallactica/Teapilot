@@ -11,7 +11,8 @@
     "accessor.MinecraftClientAccessor",
     "accessor.ParticleAccessor",
     "accessor.ScreenAccessor",
-    "accessor.SlotAccessor"
+    "accessor.SlotAccessor",
+    "accessor.BossBarHudAccessor"
   ],
   "client": [
     "ClientPlayerEntityMixin",
