@@ -4,6 +4,7 @@ import me.teawin.teapilot.protocol.Replayable;
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
 import me.teawin.teapilot.protocol.request.BossBarRequest;
+import me.teawin.teapilot.protocol.request.TabListRequest;
 import me.teawin.teapilot.protocol.request.client.ClientConnectRequest;
 import me.teawin.teapilot.protocol.request.client.ClientDisconnectRequest;
 import me.teawin.teapilot.protocol.request.client.ClientSessionRequest;
@@ -77,6 +78,7 @@ public class TeapilotDispatcher {
         register("flags", FlagsRequest.class);
         register("flags.set", FlagsSetRequest.class);
 
+        register("tablist", TabListRequest.class);
         register("bossbar", BossBarRequest.class);
         register("sidebar", ScoreboardSidebarRequest.class);
         register("client", ClientRequest.class);

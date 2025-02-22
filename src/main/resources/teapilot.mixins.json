@@ -5,14 +5,15 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "accessor.AbstractSignEditScreenAccessor",
+    "accessor.PlayerListHudAccessor",
+    "accessor.BossBarHudAccessor",
     "accessor.HandledScreenAccessor",
     "accessor.InputUtilTypeAccessor",
     "accessor.KeyBindingAccessor",
     "accessor.MinecraftClientAccessor",
     "accessor.ParticleAccessor",
     "accessor.ScreenAccessor",
-    "accessor.SlotAccessor",
-    "accessor.BossBarHudAccessor"
+    "accessor.SlotAccessor"
   ],
   "client": [
     "ClientPlayerEntityMixin",
