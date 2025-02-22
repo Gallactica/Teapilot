@@ -4,7 +4,7 @@ import me.teawin.teapilot.Teapilot;
 import me.teawin.teapilot.TeapilotEvents;
 import me.teawin.teapilot.protocol.Request;
 import me.teawin.teapilot.protocol.Response;
-import me.teawin.teapilot.protocol.response.TeapilotResponse;
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -17,6 +17,27 @@ public class TeapilotRequest extends Request {
         List<String> events = new ArrayList<>(TeapilotEvents.asList());
         List<String> flags = Teapilot.flags.getAllNames();
 
-        return new TeapilotResponse(methods, events, flags);
+        String version = FabricLoader.getInstance()
+                .getModContainer("teapilot")
+                .orElseThrow()
+                .getMetadata()
+                .getVersion()
+                .getFriendlyString();
+
+        return new TeapilotResponse(methods, events, flags, version);
+    }
+
+    public static class TeapilotResponse extends Response {
+        private final List<String> methods;
+        private final List<String> events;
+        private final List<String> flags;
+        private final String version;
+
+        public TeapilotResponse(List<String> methods, List<String> events, List<String> flags, String version) {
+            this.methods = methods;
+            this.events = events;
+            this.flags = flags;
+            this.version = version;
+        }
     }
 }
