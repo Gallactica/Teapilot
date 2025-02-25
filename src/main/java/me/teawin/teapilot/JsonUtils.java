@@ -21,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
@@ -157,9 +158,12 @@ public class JsonUtils {
     }
 
     public static JsonElement fromText(Text text) {
+        JsonElement json = TextCodecs.CODEC.encodeStart(
+                        MinecraftClient.getInstance().world != null ? MinecraftClient.getInstance().world.getRegistryManager()
+                                .getOps(JsonOps.INSTANCE) : JsonOps.INSTANCE, text)
+                .getPartialOrThrow();
+
         if (Teapilot.flags.isEnabled("EXPERIMENT_TEXT_SERIALIZATION")) {
-            JsonElement json = TextCodecs.CODEC.encodeStart(JsonOps.INSTANCE, text)
-                    .getOrThrow();
             JsonPrimitive content = new JsonPrimitive(text.getString()
                     .replaceAll("§.", ""));
 
@@ -170,8 +174,7 @@ public class JsonUtils {
             return jsonElement;
         }
 
-        return TextCodecs.CODEC.encodeStart(JsonOps.INSTANCE, text)
-                .getOrThrow();
+        return json;
     }
 
     public static JsonElement fromTextList(List<Text> textList) {
